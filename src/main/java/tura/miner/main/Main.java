@@ -1,6 +1,7 @@
-package test;
+package tura.miner.main;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.jfinal.log.Log;
@@ -19,8 +20,10 @@ public class Main {
 		}
 		Path path = new File(args[0]).toPath();
 		log.info("Path to watch: "+path);
+		DriveMonitor dm = new DriveMonitor();
+		Files.list(path).forEach(dm::onEntryCreate);
 		DirChangeWatcher watcher = new DirChangeWatcher(path);
-		watcher.addDirChangeListener(new DriveMonitor());
+		watcher.addDirChangeListener(dm);
 		watcher.start();
 		log.info("watcher has started...");
 	}
