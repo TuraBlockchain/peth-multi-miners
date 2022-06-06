@@ -7,10 +7,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -86,6 +89,10 @@ public class Util {
 		String cid = Files.readString(cid_path).trim();
 		cid_path.toFile().delete();
 		MinerMonitor mon = new MinerMonitor(cid, plot_dir, new BufferedReader(new InputStreamReader(in)));
+		Map<String, Object> conf = new Yaml().load(Files.readString(Paths.get(miner_dir.toAbsolutePath().toString(), conf_fn)));
+		List<String> accounts = (List<String>) ((Map) conf.get("account_id_to_secret_phrase")).keySet().stream().map(o->o.toString()).collect(Collectors.toUnmodifiableList());
+		mon.getConf().put("accounts", accounts);
+		mon.getConf().put("url",conf.get("url"));
 		return mon;
 	}
 

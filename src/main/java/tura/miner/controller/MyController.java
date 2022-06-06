@@ -23,6 +23,9 @@ public class MyController extends Controller {
 			o.entrySet().forEach(e->{
 				map.put(e.getKey().toString(), e.getValue());
 			});
+			o.getConf().entrySet().forEach(e->{
+				map.put(e.getKey().toString(), e.getValue());
+			});
 			return map;
 		}).collect(Collectors.toUnmodifiableList());
 		Map<String, Object> map = new HashMap<>();
