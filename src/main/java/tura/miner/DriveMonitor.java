@@ -16,6 +16,10 @@ public class DriveMonitor implements DirChangeListener {
 	private final String miner_suffix = "miner", plot_suffix = "plots";
 	private final List<MinerMonitor> miner_mons = Collections.synchronizedList(new LinkedList<>());
 	private static final Log log = Log.getLog(DriveMonitor.class);
+	
+	public List<MinerMonitor> getMinerMonitors() {
+		return Collections.unmodifiableList(miner_mons);
+	}
 
 	private Path toPlotPath(Path path) {
 		return Path.of(path.toAbsolutePath().toString(), plot_suffix);

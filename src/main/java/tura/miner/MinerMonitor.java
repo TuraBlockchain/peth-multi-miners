@@ -3,7 +3,9 @@ package tura.miner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class MinerMonitor extends Thread {
@@ -30,6 +32,14 @@ public class MinerMonitor extends Thread {
 
 	public Path getPlotPath() {
 		return plot_path;
+	}
+
+	public String getProperty(String key) {
+		return prop.getProperty(key);
+	}
+
+	public Set<Entry<Object, Object>> entrySet() {
+		return prop.entrySet();
 	}
 
 	@Override

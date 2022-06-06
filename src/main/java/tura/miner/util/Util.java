@@ -23,7 +23,15 @@ public class Util {
 	private static final String conf_fn = "config.yaml";
 	private static final String miner_fn = "rotura-miner";
 
-	public static final Path checkAndCopyMinerFiles(Path p) throws IOException {
+	public static final synchronized Path checkAndCopyMinerFiles(Path p) throws IOException {
+		for (int i = 0; i < 10; i++) {
+			if (!Files.exists(p)) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+			}
+		}
 		if (!Files.exists(p)) {
 			throw new FileNotFoundException();
 		}
@@ -81,7 +89,7 @@ public class Util {
 		return mon;
 	}
 
-	public static final int killDockerMiner(String cid) throws Exception {
+	public static final synchronized int killDockerMiner(String cid) throws Exception {
 		Process process = new ProcessBuilder("docker", "kill", cid).start();
 		return process.waitFor();
 	}

@@ -9,6 +9,7 @@ import com.jfinal.server.undertow.UndertowServer;
 
 import tura.miner.DriveMonitor;
 import tura.miner.dir.DirChangeWatcher;
+import tura.miner.util.MySingleton;
 
 public class Main {
 
@@ -22,12 +23,13 @@ public class Main {
 		Path path = Paths.get(args[0]);
 		log.info("Path to watch: " + path);
 		DriveMonitor dm = new DriveMonitor();
+		MySingleton.getInstance().setDriveMonitor(dm);
 		Files.list(path).forEach(dm::onEntryCreate);
 		DirChangeWatcher watcher = new DirChangeWatcher(path);
 		watcher.addDirChangeListener(dm);
 		watcher.start();
 		log.info("watcher has started...");
-		UndertowServer.start(TuraConfig.class, 8080, true);
+		UndertowServer.start(TuraConfig.class, 8080, false);
 	}
 
 }
