@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +65,7 @@ public class Util {
 		conf.put("plot_dirs", Arrays.asList(plot_path));
 		conf.put("show_progress", true);
 		conf.put("console_log_level", "info");
-		conf.put("console_log_pattern", "{m}{n}");
+		conf.put("console_log_pattern", "{m}");
 
 		Path tempDir = Files.createTempDirectory(UUID.randomUUID().toString());
 		tempDir.toFile().deleteOnExit();
@@ -95,7 +96,7 @@ public class Util {
 		MinerMonitor mon = new MinerMonitor(cid, plot_dir, new BufferedReader(new InputStreamReader(in)));
 		Map<String, Object> conf = new Yaml().load(Files.readString(Paths.get(miner_dir.toAbsolutePath().toString(), conf_fn)));
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		List<String> accounts = (List<String>) ((Map) conf.get("account_id_to_secret_phrase")).keySet().stream().map(o -> o.toString()).collect(Collectors.toUnmodifiableList());
+		List<BigInteger> accounts = (List<BigInteger>) ((Map) conf.get("account_id_to_secret_phrase")).keySet().stream().map(o -> new BigInteger(o.toString().trim())).collect(Collectors.toUnmodifiableList());
 		mon.getConf().put("accounts", accounts);
 		mon.getConf().put("url", conf.get("url"));
 		return mon;

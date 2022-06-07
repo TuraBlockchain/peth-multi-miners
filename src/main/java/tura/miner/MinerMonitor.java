@@ -66,7 +66,7 @@ public class MinerMonitor extends Thread {
 					prop.setProperty("total capacity", cap);
 				} else if (line.startsWith("new block:")) {
 					Stream.of(line.substring("new block:".length() + 1).split(",")).map(s -> s.split("=")).forEach(o -> {
-						prop.setProperty(o[0].trim(), o[1].trim());
+						prop.put(o[0].trim(), Long.parseLong(o[1].trim()));
 					});
 				} else if (line.startsWith("round finished:")) {
 					Stream.of(line.substring("round finished:".length() + 1).split(",")).map(s -> s.split("=")).forEach(o -> {
