@@ -9,6 +9,7 @@ import com.jfinal.server.undertow.UndertowServer;
 
 import tura.miner.DriveMonitor;
 import tura.miner.dir.DirChangeWatcher;
+import tura.miner.util.MyShutdownHook;
 import tura.miner.util.MySingleton;
 
 public class Main {
@@ -23,6 +24,7 @@ public class Main {
 		Path path = Paths.get(args[0]);
 		log.info("Path to watch: " + path);
 		DriveMonitor dm = new DriveMonitor();
+		Runtime.getRuntime().addShutdownHook(new MyShutdownHook(dm, path));
 		MySingleton.getInstance().setDriveMonitor(dm);
 		Files.list(path).forEach(dm::onEntryCreate);
 		DirChangeWatcher watcher = new DirChangeWatcher(path);
