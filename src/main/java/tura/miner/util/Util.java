@@ -17,11 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.yaml.snakeyaml.Yaml;
 
 import tura.miner.MinerMonitor;
@@ -179,15 +180,46 @@ public class Util {
 		}
 		l.addAll(Arrays.asList("--id", Long.toString(id), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
 		Process proc = new ProcessBuilder(l).start();
+		BufferedReader reader = proc.inputReader();
+		BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+		while(true) {
+			String line = reader.readLine().trim();
+			if (line.isEmpty() || line.equals("[2A")) {
+				continue;
+			}else if(line.startsWith("Error: ")) {
+				reader.close();
+				throw new IOException(line.substring("Error: ".length()));
+			}else if(line.equals("Starting plotting...")) {
+				MySingleton.es.submit(new Callable<Void>() {
+
+					@Override
+					public Void call() throws Exception {
+						String line = null;
+						while(true) {
+							line = reader.readLine();
+							if(line==null) {
+								queue.offer(null);
+								break;
+							}else if (line.isEmpty() || line.equals("[2A")) {
+								continue;
+							}else {
+								queue.offer(line);
+							}
+						}
+						return null;
+					}});
+				break;
+			}
+		}
 		MySingleton.es.submit(new Callable<Void>() {
 
 			@Override
 			public Void call() throws Exception {
-				LineIterator it = IOUtils.lineIterator(proc.getInputStream(), "UTF-8");
-				while (it.hasNext()) {
-					String line = it.next().trim();
-					if (line.isEmpty() || line.equals("[2A")) {
-						continue;
+				String line = null;
+				while (true) {
+					line = queue.take();
+					if(line==null) {
+						break;
 					}
 					if (line.startsWith("Hashing:") || line.startsWith("Writing:")) {
 						PlotProgressListener.Type type = line.startsWith("H") ? PlotProgressListener.Type.HASH : PlotProgressListener.Type.WRIT;

@@ -15,10 +15,10 @@ import tura.miner.MinerMonitor;
 import tura.miner.util.MySingleton;
 import tura.miner.util.Util;
 
-@Path(value = "/api/v1")
-public class MyController extends Controller {
+@Path(value = "/api/v1/status")
+public class StatusController extends Controller {
 
-	public void status() {
+	public void index() {
 		List<MinerMonitor> miner_mons = MySingleton.getInstance().getDriveMonitor().getMinerMonitors();
 		List<Object> m1 = miner_mons.stream().map(o -> {
 			Map<String, Object> map = new TreeMap<>();

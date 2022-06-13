@@ -6,13 +6,15 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
+import com.jfinal.kit.Prop;
+import com.jfinal.kit.PropKit;
 import com.jfinal.template.Engine;
 
 public class TuraConfig extends JFinalConfig {
-
+	public static Prop p;
 	@Override
 	public void configConstant(Constants me) {
-
+		p = PropKit.use("conf.properties");
 	}
 
 	@Override
