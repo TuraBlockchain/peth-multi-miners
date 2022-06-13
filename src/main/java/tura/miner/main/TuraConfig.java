@@ -8,9 +8,14 @@ import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
+import com.jfinal.plugin.redis.RedisPlugin;
+import com.jfinal.plugin.redis.serializer.JdkSerializer;
 import com.jfinal.template.Engine;
 
 public class TuraConfig extends JFinalConfig {
+	
+	public static final String str_redis_cache_name = "redis_cache_name";
+	
 	public static Prop p;
 	@Override
 	public void configConstant(Constants me) {
@@ -29,7 +34,9 @@ public class TuraConfig extends JFinalConfig {
 
 	@Override
 	public void configPlugin(Plugins me) {
-
+		RedisPlugin redis = new RedisPlugin(p.get(str_redis_cache_name),p.get("redis_host"),p.getInt("redis_port"),p.get("redis_password"));
+		redis.setSerializer(new JdkSerializer());
+	    me.add(redis);
 	}
 
 	@Override
