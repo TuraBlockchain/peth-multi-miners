@@ -2,10 +2,12 @@ package tura.miner.controller;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 
+import tura.miner.MinerProcessHelper;
 import tura.miner.util.MySingleton;
 import tura.miner.util.Util;
 
@@ -17,6 +19,8 @@ public class StatusController extends Controller {
 		map.put("version", 1);
 		map.put("start_time", MySingleton.getInstance().getStartTime());
 		map.put("memory", Util.systemMemory());
+		map.put("disk", Util.diskUsage().get("/"));
+		map.put("miner", MinerProcessHelper.me.minerProperties().stream().collect(Collectors.toMap(e->e.getKey().toString(), e->e.getValue())));
 		renderJson(map);
 	}
 }

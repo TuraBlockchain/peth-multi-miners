@@ -42,7 +42,7 @@ public class Util {
 		out.close();
 
 		MinerMonitor mon = new MinerMonitor(proc);
-
+		MySingleton.es.submit(mon);
 		return mon;
 	}
 
@@ -63,7 +63,7 @@ public class Util {
 		Map<String, Map<String, String>> map = new TreeMap<>();
 		try {
 			Process process = new ProcessBuilder("df", "-h").start();
-			IOUtils.readLines(process.getInputStream(), "UTF-8").stream().map(s -> s.split("\\s+")).forEach(s -> {
+			IOUtils.readLines(process.getInputStream(), "UTF-8").stream().filter(s->s.startsWith("/")).map(s -> s.split("\\s+")).forEach(s -> {
 				Map<String, String> m = new TreeMap<>();
 				m.put("size", s[1]);
 				m.put("used", s[2]);

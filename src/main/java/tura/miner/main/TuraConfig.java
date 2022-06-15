@@ -20,11 +20,14 @@ public class TuraConfig extends JFinalConfig {
 	public static final String str_redis_pw = "redis_password";
 	public static final String str_miner_bin_uri = "rotura-miner-uri";
 	public static final String str_plotter_bin_uri = "rotura-plotter-uri";
-	
+
 	public static Prop p;
+	static {
+		p = PropKit.use("conf.properties");
+	}
+
 	@Override
 	public void configConstant(Constants me) {
-		p = PropKit.use("conf.properties");
 	}
 
 	@Override
@@ -39,9 +42,9 @@ public class TuraConfig extends JFinalConfig {
 
 	@Override
 	public void configPlugin(Plugins me) {
-		RedisPlugin redis = new RedisPlugin(p.get(str_redis_cache_name),p.get(str_redis_host),p.getInt(str_redis_port),p.get(str_redis_pw));
+		RedisPlugin redis = new RedisPlugin(p.get(str_redis_cache_name), p.get(str_redis_host), p.getInt(str_redis_port), p.get(str_redis_pw));
 		redis.setSerializer(new JdkSerializer());
-	    me.add(redis);
+		me.add(redis);
 	}
 
 	@Override

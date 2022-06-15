@@ -44,12 +44,15 @@ public class MinerProcessHelper {
 			Map<BigInteger, String> accounts = jedis.smembers(AccountController.str_accounts).stream()
 					.collect(Collectors.toMap(s -> new BigInteger(s.substring(0, s.indexOf(","))), s -> s.substring(s.indexOf(',') + 1)));
 			List<Path> plot_dirs = jedis.smembers(MinerPathController.str_miner_path).stream().map(Paths::get).toList();
-			URL server_url = new URL(jedis.get(MinerConfServController.str_server_url));
-
+			String s = jedis.get(MinerConfServController.str_server_url);
 			if (miner_mon != null) {
 				miner_mon.destroyForcibly();
 			}
-			miner_mon = Util.buildMinerProces(miner_bin_path, accounts, plot_dirs, server_url);
+			if (s == null)
+				return;
+			if (accounts.isEmpty() || plot_dirs.isEmpty())
+				return;
+			miner_mon = Util.buildMinerProces(miner_bin_path, accounts, plot_dirs, new URL(s));
 		} finally {
 			jedis.close();
 		}

@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class MinerMonitor extends Thread {
+public class MinerMonitor implements Runnable {
 
 	private final Process proc;
 	private final BufferedReader reader;
