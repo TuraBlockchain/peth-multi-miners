@@ -22,7 +22,6 @@ public class StatusController extends Controller {
 			try {
 				disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 		Map<String, Object> map = new TreeMap<>();

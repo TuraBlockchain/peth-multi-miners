@@ -1,13 +1,14 @@
 package tura.miner.controller;
 
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 import com.jfinal.plugin.redis.Redis;
@@ -26,8 +27,10 @@ public class AccountController extends Controller {
 			renderError(405);
 		}
 		try {
-			Set<Integer> set = jedis.smembers(str_accounts).stream().map(s->s.substring(0, s.indexOf(','))).map(Integer::parseInt).collect(Collectors.toUnmodifiableSet());
-			renderText(new Gson().toJson(set), "application/json");
+			Set<BigInteger> set = jedis.smembers(str_accounts).stream().map(s->s.substring(0, s.indexOf(','))).map(BigInteger::new).collect(Collectors.toUnmodifiableSet());
+			JSONArray jarr = new JSONArray();
+			set.stream().forEach(jarr::put);
+			renderText(jarr.toString(), "application/json");
 		} catch (Exception e) {
 			throw e;
 		}finally {
@@ -41,9 +44,9 @@ public class AccountController extends Controller {
 		}
 		try {
 			JSONObject jobj = new JSONObject(getRawData());
-			int id = jobj.getInt("id");
+			BigInteger id = jobj.getBigInteger("id");
 			String passphase = jobj.getString("passphase").trim();
-			long result = jedis.sadd(str_accounts, Integer.toString(id) + "," + passphase);
+			long result = jedis.sadd(str_accounts, id.toString() + "," + passphase);
 			renderText(Long.toString(result));
 		} catch (JSONException e) {
 			renderError(400);
@@ -59,8 +62,8 @@ public class AccountController extends Controller {
 		}
 		try {
 			JSONObject jobj = new JSONObject(getRawData());
-			int id = jobj.getInt("id");
-			Optional<String> opt = jedis.smembers(str_accounts).stream().filter(s->s.startsWith(Integer.toString(id)+",")).findAny();
+			BigInteger id = jobj.getBigInteger("id");
+			Optional<String> opt = jedis.smembers(str_accounts).stream().filter(s->s.startsWith(id.toString()+",")).findAny();
 			if(opt.isPresent()) {
 				jedis.srem(str_accounts, opt.get());
 				renderText("1");
