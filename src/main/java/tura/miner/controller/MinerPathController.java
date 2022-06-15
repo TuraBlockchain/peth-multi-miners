@@ -16,7 +16,7 @@ public class MinerPathController extends Controller {
 
 	private static final Jedis jedis = Redis.use(TuraConfig.p.get(TuraConfig.str_redis_cache_name)).getJedis();
 
-	private static final String str_miner_path = "miner_path";
+	public static final String str_miner_path = "miner_path";
 
 	public void add() {
 		if (!getRequest().getMethod().equals("POST")) {

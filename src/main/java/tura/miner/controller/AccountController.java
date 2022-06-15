@@ -19,7 +19,7 @@ import tura.miner.main.TuraConfig;
 public class AccountController extends Controller {
 	private static final Jedis jedis = Redis.use(TuraConfig.p.get(TuraConfig.str_redis_cache_name)).getJedis();
 
-	private static final String str_accounts = "accounts";
+	public static final String str_accounts = "accounts";
 
 	public void index() {
 		if (!getRequest().getMethod().equals("GET")) {

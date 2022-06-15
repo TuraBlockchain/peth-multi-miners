@@ -40,7 +40,7 @@ public class PlotController extends Controller {
 		}
 		PlotProgress prog = new PlotProgress(_path);
 		try {
-			Util.plot(Paths.get(TuraConfig.p.get("rotura-plotter-uri")), Paths.get(_path), false, id, sn, nounces, prog);
+			Util.plot(Paths.get(TuraConfig.p.get(TuraConfig.str_plotter_bin_uri)), Paths.get(_path), false, id, sn, nounces, prog);
 		} catch (IOException e) {
 			if (e.getMessage().contains("insufficient disk space")) {
 				renderError(507, new TextRender(e.getMessage()));
