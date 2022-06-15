@@ -1,5 +1,9 @@
 package tura.miner.main;
 
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
+
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
 import com.jfinal.config.Interceptors;
@@ -22,8 +26,13 @@ public class TuraConfig extends JFinalConfig {
 	public static final String str_plotter_bin_uri = "rotura-plotter-uri";
 
 	public static Prop p;
+	private static boolean is_root;
 	static {
 		p = PropKit.use("conf.properties");
+		try {
+			is_root = IOUtils.readLines(new ProcessBuilder("id", "-u").start().getInputStream(), "UTF-8").stream().map(Integer::parseInt).findFirst().get() == 0;
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
@@ -57,4 +66,7 @@ public class TuraConfig extends JFinalConfig {
 
 	}
 
+	public static final boolean isRunningOnRoot() {
+		return is_root;
+	}
 }

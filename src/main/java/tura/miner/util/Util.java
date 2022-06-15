@@ -1,6 +1,7 @@
 package tura.miner.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,9 +19,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.yaml.snakeyaml.Yaml;
 
 import tura.miner.MinerMonitor;
+import tura.miner.main.TuraConfig;
 
 public class Util {
 
@@ -62,9 +66,10 @@ public class Util {
 	public static final Map<String, Map<String, String>> diskUsage() {
 		Map<String, Map<String, String>> map = new TreeMap<>();
 		try {
-			Process process = new ProcessBuilder("df", "-h").start();
-			IOUtils.readLines(process.getInputStream(), "UTF-8").stream().filter(s->s.startsWith("/")).map(s -> s.split("\\s+")).forEach(s -> {
+			Process process = new ProcessBuilder("df").start();
+			IOUtils.readLines(process.getInputStream(), "UTF-8").stream().filter(s -> s.startsWith("/")).map(s -> s.split("\\s+")).forEach(s -> {
 				Map<String, String> m = new TreeMap<>();
+				m.put("device", s[0]);
 				m.put("size", s[1]);
 				m.put("used", s[2]);
 				m.put("avail", s[3]);
@@ -74,6 +79,19 @@ public class Util {
 		} catch (IOException e) {
 		}
 		return map;
+	}
+
+	public static final int disk_temputure_cel(String device_path) throws Exception {
+		if (!device_path.startsWith("/dev/sd")) {
+			throw new IllegalArgumentException();
+		}
+		if (!TuraConfig.isRunningOnRoot()) {
+			throw new IOException("must run in root");
+		}
+		if (!new File(device_path).exists()) {
+			throw new IOException("device not exist");
+		}
+		return new JSONObject(new JSONTokener(new ProcessBuilder("smartctl", "-H", "-j", device_path).start().getInputStream())).getJSONObject("temperature").getInt("current");
 	}
 
 	public static final Callable<String> pingServer(String url) {
