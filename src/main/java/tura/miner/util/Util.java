@@ -54,7 +54,8 @@ public class Util {
 		Map<String, Long> map = new TreeMap<>();
 		try {
 			Process process = new ProcessBuilder("free", "-b", "-t").start();
-			String[] line = IOUtils.readLines(process.getInputStream(), "UTF-8").stream().filter(s -> s.startsWith("Total:")).findAny().get().split("\\s+");
+			List<String> list = IOUtils.readLines(process.getInputStream(), "UTF-8");
+			String[] line = list.get(list.size() - 1).replace("：", " ").split("\\s+");
 			map.put("total", Long.valueOf(line[1]));
 			map.put("used", Long.valueOf(line[2]));
 			map.put("free", Long.valueOf(line[3]));
@@ -91,7 +92,13 @@ public class Util {
 		if (!new File(device_path).exists()) {
 			throw new IOException("device not exist");
 		}
-		return new JSONObject(new JSONTokener(new ProcessBuilder("smartctl", "-H", "-j", device_path).start().getInputStream())).getJSONObject("temperature").getInt("current");
+		return IOUtils.readLines(new ProcessBuilder("smartctl", "-a", device_path).start().inputReader()).stream().filter(s -> s.startsWith("194 Temperature_Celsius"))
+				.map(s -> s.substring(s.lastIndexOf(' ') + 1)).mapToInt(Integer::parseInt).findAny().getAsInt();
+	}
+
+	public static final int isa_temputure_cel() throws Exception {
+		return new JSONObject(new JSONTokener(new ProcessBuilder("sensors", "-j").start().getInputStream())).getJSONObject("coretemp-isa-0000").getJSONObject("Package id 0").getNumber("temp1_input")
+				.intValue();
 	}
 
 	public static final Callable<String> pingServer(String url) {

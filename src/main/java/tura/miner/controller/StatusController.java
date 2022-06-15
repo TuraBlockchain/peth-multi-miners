@@ -20,8 +20,9 @@ public class StatusController extends Controller {
 		Map disk = Util.diskUsage().get("/");
 		if (TuraConfig.isRunningOnRoot()) {
 			try {
-				disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString()));
+				disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		Map<String, Object> map = new TreeMap<>();
@@ -29,6 +30,10 @@ public class StatusController extends Controller {
 		map.put("start_time", MySingleton.getInstance().getStartTime());
 		map.put("memory", Util.systemMemory());
 		map.put("disk", disk);
+		try {
+			map.put("CPU Temp", Util.isa_temputure_cel());
+		} catch (Exception e1) {
+		}
 		map.put("miner", MinerProcessHelper.me.minerProperties().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue())));
 		renderJson(map);
 	}
