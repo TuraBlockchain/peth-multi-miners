@@ -1,6 +1,7 @@
 package tura.miner.controller;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,12 +29,13 @@ public class PlotController extends Controller {
 			renderError(405);
 		}
 		String _path = null;
-		int id = 0, sn = 0, nounces = 0;
+		BigInteger id = null;
+		long sn = 0, nounces = 0;
 		try {
 			JSONObject jobj = new JSONObject(getRawData());
-			id = jobj.getInt("id");
-			sn = jobj.getInt("start_nounce");
-			nounces = jobj.getInt("nounces");
+			id = jobj.getBigInteger("id");
+			sn = jobj.getLong("start_nounce");
+			nounces = jobj.getLong("nounces");
 			_path = jobj.getString("target_path");
 		} catch (JSONException e) {
 			renderError(400);
@@ -53,7 +55,7 @@ public class PlotController extends Controller {
 	}
 
 	public void list() {
-		renderText(gson.toJson(plot_progress),"application/json");
+		renderText(gson.toJson(plot_progress), "application/json");
 	}
 
 	public static final class PlotProgress implements PlotProgressListener {
@@ -66,7 +68,7 @@ public class PlotController extends Controller {
 
 		@Override
 		public void onProgress(Type type, float progress, String rate, String eta) {
-			switch(type) {
+			switch (type) {
 			case HASH:
 				hash_progress = progress;
 				hash_rate = rate;
@@ -79,7 +81,7 @@ public class PlotController extends Controller {
 				break;
 			default:
 				break;
-			
+
 			}
 		}
 
@@ -89,5 +91,5 @@ public class PlotController extends Controller {
 					+ write_rate + ", write_eta=" + write_eta + "]";
 		}
 	}
-	
+
 }
