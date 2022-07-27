@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +31,9 @@ import tura.miner.main.TuraConfig;
 public class Util {
 
 	public static final MinerMonitor buildMinerProces(Path miner_bin_path, Map<BigInteger, String> accounts, List<Path> plot_dirs, URL server_url) throws Exception {
+		if(!Files.exists(miner_bin_path.toAbsolutePath())) {
+			miner_bin_path = findPath(miner_bin_path);
+		}
 		Map<String, Object> m = new TreeMap<>();
 		m.put("account_id_to_secret_phrase", accounts);
 		m.put("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).collect(Collectors.toList()));
@@ -119,6 +124,9 @@ public class Util {
 	}
 
 	public static final Process plot(Path plot_bin, Path target, boolean benchmark, long id, long start_nonce, long nonces, PlotProgressListener listener) throws IOException {
+		if(!Files.exists(plot_bin.toAbsolutePath())) {
+			plot_bin = findPath(plot_bin);
+		}
 		if (!plot_bin.toFile().exists()) {
 			throw new FileNotFoundException(plot_bin.toString());
 		} else if (!plot_bin.toFile().isFile()) {
@@ -201,5 +209,9 @@ public class Util {
 			}
 		});
 		return proc;
+	}
+	
+	private static final Path findPath(Path p) throws IOException{
+		return IOUtils.readLines(new ProcessBuilder().command("which",p.toString()).start().getInputStream(), "UTF-8").stream().map(Paths::get).findFirst().get();
 	}
 }
