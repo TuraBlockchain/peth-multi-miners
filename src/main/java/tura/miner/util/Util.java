@@ -123,7 +123,7 @@ public class Util {
 		};
 	}
 
-	public static final Process plot(Path plot_bin, Path target, boolean benchmark, long id, long start_nonce, long nonces, PlotProgressListener listener) throws IOException {
+	public static final Process plot(Path plot_bin, Path target, boolean benchmark, BigInteger id, long start_nonce, long nonces, PlotProgressListener listener) throws IOException {
 		if(!Files.exists(plot_bin.toAbsolutePath())) {
 			plot_bin = findPath(plot_bin);
 		}
@@ -146,7 +146,7 @@ public class Util {
 		if (benchmark) {
 			l.add("-b");
 		}
-		l.addAll(Arrays.asList("--id", Long.toString(id), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
+		l.addAll(Arrays.asList("--id", id.toString(), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
 		Process proc = new ProcessBuilder(l).start();
 		BufferedReader reader = proc.inputReader();
 		BlockingQueue<String> queue = new LinkedBlockingQueue<>();
