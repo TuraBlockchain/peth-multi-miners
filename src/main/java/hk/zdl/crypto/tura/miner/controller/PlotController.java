@@ -1,4 +1,4 @@
-package tura.miner.controller;
+package hk.zdl.crypto.tura.miner.controller;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -14,7 +14,6 @@ import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 import com.jfinal.render.TextRender;
 
-import tura.miner.main.TuraConfig;
 import tura.miner.util.PlotProgressListener;
 import tura.miner.util.Util;
 
@@ -42,7 +41,7 @@ public class PlotController extends Controller {
 		}
 		PlotProgress prog = new PlotProgress(_path);
 		try {
-			Util.plot(Paths.get(TuraConfig.p.get(TuraConfig.str_plotter_bin_uri)), Paths.get(_path), false, id, sn, nounces, prog);
+			Util.plot(Paths.get(""), Paths.get(_path), false, id, sn, nounces, prog);
 		} catch (IOException e) {
 			if (e.getMessage().contains("insufficient disk space")) {
 				renderError(507, new TextRender(e.getMessage()));

@@ -1,4 +1,4 @@
-package tura.miner;
+package hk.zdl.crypto.tura.miner;
 
 import java.io.BufferedReader;
 import java.io.IOException;

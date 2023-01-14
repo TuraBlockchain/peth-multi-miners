@@ -1,4 +1,4 @@
-package tura.miner.controller;
+package hk.zdl.crypto.tura.miner.controller;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 
-import tura.miner.MinerProcessHelper;
-import tura.miner.main.TuraConfig;
+import hk.zdl.crypto.tura.miner.MinerProcessHelper;
+import hk.zdl.crypto.tura.miner.main.TuraConfig;
 import tura.miner.util.MySingleton;
 import tura.miner.util.Util;
 

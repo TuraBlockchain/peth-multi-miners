@@ -25,8 +25,8 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.yaml.snakeyaml.Yaml;
 
-import tura.miner.MinerMonitor;
-import tura.miner.main.TuraConfig;
+import hk.zdl.crypto.tura.miner.MinerMonitor;
+import hk.zdl.crypto.tura.miner.main.TuraConfig;
 
 public class Util {
 
