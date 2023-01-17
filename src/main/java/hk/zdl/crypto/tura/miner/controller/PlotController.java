@@ -8,20 +8,20 @@ import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.google.gson.Gson;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
-import com.jfinal.render.TextRender;
 
 import hk.zdl.crypto.tura.miner.util.PlotProgressListener;
 import hk.zdl.crypto.tura.miner.util.Util;
@@ -29,62 +29,52 @@ import hk.zdl.crypto.tura.miner.util.Util;
 @Path(value = "/api/v1/plot")
 public class PlotController extends Controller {
 
-	private static final ExecutorService plot_single_thread = Executors.newSingleThreadExecutor();
+	static {
+		new Thread() {
+
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						q.take().run();
+					} catch (InterruptedException e) {
+						break;
+					}
+				}
+			}
+		}.start();
+	}
+	private static final BlockingQueue<Runnable> q = new LinkedBlockingQueue<>();
 	private static final List<PlotProgress> plot_progress = new LinkedList<>();
 	private static final Gson gson = new Gson();
 	private static File plotter_bin = null;
 
-	public void add() {
+	public void add() throws Exception {
 		if (!getRequest().getMethod().equals("POST")) {
 			renderError(405);
 		}
-		String path = null;
-		BigInteger id = null;
-		long sn = 0, nounces = 0;
-		boolean queue = false;
-		try {
-			JSONObject jobj = new JSONObject(getRawData());
-			id = jobj.getBigInteger("id");
-			sn = jobj.getLong("start_nounce");
-			nounces = jobj.getLong("nounces");
-			path = jobj.getString("target_path");
-			queue = jobj.optBoolean("queue");
-		} catch (JSONException e) {
-			renderError(400);
+		String path;
+		BigInteger id;
+		long sn, nounces;
+		JSONObject jobj = new JSONObject(getRawData());
+		id = jobj.getBigInteger("id");
+		sn = jobj.optLong("start_nounce", Math.abs(new Random().nextLong()));
+		nounces = jobj.getLong("nounces");
+		path = jobj.getString("target_path");
+		if (plotter_bin == null) {
+			plotter_bin = copy_plotter();
 		}
 		PlotProgress prog = new PlotProgress(path);
-		if (queue) {
-			var _path = path;
-			var _id = id;
-			var _sn = sn;
-			var _n = nounces;
+		prog.id = id;
+		q.offer(() -> {
 			try {
-				if (plotter_bin == null) {
-					plotter_bin = copy_plotter();
-				}
-			} catch (IOException e) {
-				renderError(500, new TextRender(e.getMessage()));
-				return;
+				Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog).waitFor();
+			} catch (Exception e) {
+				Logger.getLogger(getClass()).error(e.getMessage(), e);
 			}
-			plot_single_thread.submit(() -> Util.plot(plotter_bin.toPath(), Paths.get(_path), false, _id, _sn, _n, prog));
-			plot_progress.add(prog);
-			renderText("plot queued!");
-		} else {
-			try {
-				if (plotter_bin == null) {
-					plotter_bin = copy_plotter();
-				}
-				Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog);
-			} catch (IOException e) {
-				if (e.getMessage().contains("insufficient disk space")) {
-					renderError(507, new TextRender(e.getMessage()));
-				} else {
-					renderError(500, new TextRender(e.getMessage()));
-				}
-			}
-			plot_progress.add(prog);
-			renderText("plot started!");
-		}
+		});
+		plot_progress.add(prog);
+		renderText("plot queued!");
 	}
 
 	public void list() {
@@ -130,6 +120,7 @@ public class PlotController extends Controller {
 	}
 
 	public static final class PlotProgress implements PlotProgressListener {
+		BigInteger id;
 		String path, hash_rate, hash_eta, write_rate, write_eta;
 		float hash_progress, write_progress;
 
@@ -158,8 +149,8 @@ public class PlotController extends Controller {
 
 		@Override
 		public String toString() {
-			return "PlotProgress [path=" + path + ", hash_progress=" + hash_progress + ", hash_rate=" + hash_rate + ", hash_eta=" + hash_eta + ", write_progress=" + write_progress + ", write_rate="
-					+ write_rate + ", write_eta=" + write_eta + "]";
+			return "PlotProgress [id=" + id + ", path=" + path + ", hash_rate=" + hash_rate + ", hash_eta=" + hash_eta + ", write_rate=" + write_rate + ", write_eta=" + write_eta + ", hash_progress="
+					+ hash_progress + ", write_progress=" + write_progress + "]";
 		}
 	}
 

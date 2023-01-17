@@ -28,7 +28,7 @@ import hk.zdl.crypto.tura.miner.MinerMonitor;
 import hk.zdl.crypto.tura.miner.main.TuraConfig;
 
 public class Util {
-	private static final ExecutorService es = Executors.newCachedThreadPool(r->{
+	private static final ExecutorService es = Executors.newCachedThreadPool(r -> {
 		Thread t = new Thread(r);
 		t.setDaemon(true);
 		t.setPriority(Thread.MIN_PRIORITY);
@@ -113,7 +113,7 @@ public class Util {
 	}
 
 	public static final Process plot(Path plot_bin, Path target, boolean benchmark, BigInteger id, long start_nonce, long nonces, PlotProgressListener listener) throws IOException {
-		if(!Files.exists(plot_bin.toAbsolutePath())) {
+		if (!Files.exists(plot_bin.toAbsolutePath())) {
 			plot_bin = findPath(plot_bin);
 		}
 		if (!plot_bin.toFile().exists()) {
@@ -137,10 +137,19 @@ public class Util {
 		}
 		l.addAll(Arrays.asList("--id", id.toString(), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
 		Process proc = new ProcessBuilder(l).start();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+		}
 		BufferedReader reader = proc.inputReader();
 		BlockingQueue<String> queue = new LinkedBlockingQueue<>();
 		while (true) {
-			String line = reader.readLine().trim();
+			String line = reader.readLine();
+			if (line == null) {
+				break;
+			} else {
+				line = line.trim();
+			}
 			if (line.isEmpty() || line.equals("[2A")) {
 				continue;
 			} else if (line.startsWith("Error: ")) {
@@ -204,9 +213,9 @@ public class Util {
 		});
 		return proc;
 	}
-	
-	private static final Path findPath(Path p) throws IOException{
-		return IOUtils.readLines(new ProcessBuilder().command("which",p.toString()).start().getInputStream(), "UTF-8").stream().map(Paths::get).findFirst().get();
+
+	private static final Path findPath(Path p) throws IOException {
+		return IOUtils.readLines(new ProcessBuilder().command("which", p.toString()).start().getInputStream(), "UTF-8").stream().map(Paths::get).findFirst().get();
 	}
 
 }
