@@ -28,7 +28,7 @@ public class TuraConfig extends JFinalConfig {
 
 	@Override
 	public void configRoute(Routes me) {
-		me.scan("tura.miner.controller.");
+		me.scan("hk.zdl.crypto.tura.miner.controller.");
 	}
 
 	@Override

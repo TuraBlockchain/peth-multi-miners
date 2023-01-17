@@ -8,8 +8,10 @@ import org.json.JSONObject;
 
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
+import com.jfinal.render.TextRender;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import signumj.crypto.SignumCrypto;
 
 @Path(value = "/api/v1/miner/configure/account")
 public class AccountController extends Controller {
@@ -17,6 +19,7 @@ public class AccountController extends Controller {
 	public void index() {
 		if (!getRequest().getMethod().equals("GET")) {
 			renderError(405);
+			return;
 		}
 		var jarr = new JSONArray();
 		MyDb.getAccounts().stream().map(o -> o.getStr("address")).map(BigInteger::new).forEach(jarr::put);
@@ -26,15 +29,21 @@ public class AccountController extends Controller {
 	public void add() {
 		if (!getRequest().getMethod().equals("POST")) {
 			renderError(405);
+			return;
 		}
 		try {
 			var jobj = new JSONObject(getRawData());
-			var id = jobj.get("id").toString();
+			var id = jobj.getBigInteger("id");
 			var passphase = jobj.getString("passphrase").trim();
-			var result = MyDb.insertAccount(id, passphase);
+			if (!SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getID().equals(id.toString())) {
+				renderError(409,new TextRender("Passphrase does not match with id"));
+				return;
+			}
+			var result = MyDb.insertAccount(id.toString(), passphase);
 			renderText(result ? "1" : "0");
 		} catch (Exception e) {
 			renderError(400);
+			return;
 		}
 		renderText("ok");
 	}
@@ -42,11 +51,12 @@ public class AccountController extends Controller {
 	public void del() {
 		if (!getRequest().getMethod().equals("POST")) {
 			renderError(405);
+			return;
 		}
 		try {
 			var jobj = new JSONObject(getRawData());
-			var id = jobj.get("id").toString();
-			var result = MyDb.deleteAccount(id);
+			var id = jobj.getBigInteger("id");
+			var result = MyDb.deleteAccount(id.toString());
 			renderText(result ? "1" : "0");
 		} catch (JSONException e) {
 			renderError(400);

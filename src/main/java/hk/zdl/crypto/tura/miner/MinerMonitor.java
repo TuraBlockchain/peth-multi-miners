@@ -30,12 +30,17 @@ public class MinerMonitor implements Runnable {
 		return prop.getProperty(key);
 	}
 
+	public void setProperty(String key, String value) {
+		prop.setProperty(key, value);
+	}
+
 	public Set<Entry<Object, Object>> entrySet() {
 		return prop.entrySet();
 	}
 
 	@Override
 	public void run() {
+		prop.put("start_time", System.currentTimeMillis());
 		try {
 			while (true) {
 				String line = reader.readLine();

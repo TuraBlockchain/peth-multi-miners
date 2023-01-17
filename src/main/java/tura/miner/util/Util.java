@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
@@ -43,12 +42,11 @@ public class Util {
 		m.put("cpu_worker_task_count", 4);
 		m.put("gpu_threads", 1);
 		m.put("console_log_pattern", "{m}{n}");
-		String yaml_conf = new Yaml().dump(m);
+		Path tmp_file_path = Files.createTempFile("miner-conf-", ".yaml");
+		tmp_file_path.toFile().deleteOnExit();
+		new Yaml().dump(Files.newBufferedWriter(tmp_file_path));
 
-		Process proc = new ProcessBuilder(miner_bin_path.toString(), "-c", "/dev/stdin").start();
-		OutputStream out = proc.getOutputStream();
-		out.write(yaml_conf.getBytes());
-		out.close();
+		Process proc = new ProcessBuilder(miner_bin_path.toString(), "-c", tmp_file_path.toAbsolutePath().toString()).start();
 
 		MinerMonitor mon = new MinerMonitor(proc);
 		MySingleton.es.submit(mon);

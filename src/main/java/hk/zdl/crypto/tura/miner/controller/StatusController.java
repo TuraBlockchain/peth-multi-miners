@@ -1,39 +1,11 @@
 package hk.zdl.crypto.tura.miner.controller;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
-
-import hk.zdl.crypto.tura.miner.MinerProcessHelper;
-import hk.zdl.crypto.tura.miner.main.TuraConfig;
-import tura.miner.util.MySingleton;
-import tura.miner.util.Util;
 
 @Path(value = "/api/v1/status")
 public class StatusController extends Controller {
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void index() {
-		Map disk = Util.diskUsage().get("/");
-		if (TuraConfig.isRunningOnRoot()) {
-			try {
-				disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
-			} catch (Exception e) {
-			}
-		}
-		Map<String, Object> map = new TreeMap<>();
-		map.put("version", 1);
-		map.put("start_time", MySingleton.getInstance().getStartTime());
-		map.put("memory", Util.systemMemory());
-		map.put("disk", disk);
-		try {
-			map.put("CPU Temp", Util.isa_temputure_cel());
-		} catch (Exception e1) {
-		}
-		map.put("miner", MinerProcessHelper.me.minerProperties().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue())));
-		renderJson(map);
 	}
 }
