@@ -1,5 +1,6 @@
 package hk.zdl.crypto.tura.miner.controller;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.jfinal.core.Controller;
@@ -16,7 +17,15 @@ public class MinerController extends Controller {
 			renderError(405);
 			return;
 		}
-		renderJson(MinerProcessManager.me.list_miners().stream().map(o->o.entrySet()).toList());
+		var jarr = new JSONArray();
+		for (var m : MinerProcessManager.me.list_miners()) {
+			var jobj = new JSONObject();
+			for (var e : m.entrySet()) {
+				jobj.put(e.getKey(), e.getValue());
+			}
+			jarr.put(jobj);
+		}
+		renderText(jarr.toString(), "application/json");
 	}
 
 	public void start() {

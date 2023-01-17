@@ -21,7 +21,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 
 public class LocalMiner {
 
-	private static final String default_console_log_pattern = "{({d(%H:%M:%S)} [{l}]):16.16} {m}{n}";
+	private static final String default_console_log_pattern = "{m}";
 
 	public static File build_conf_file(String id, String passphrase, Collection<Path> plot_dirs, URL server_url, String console_log_pattern) throws Exception {
 		if (console_log_pattern == null || console_log_pattern.isBlank()) {

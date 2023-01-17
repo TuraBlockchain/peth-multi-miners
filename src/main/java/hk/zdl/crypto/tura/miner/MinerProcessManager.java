@@ -27,6 +27,7 @@ public class MinerProcessManager {
 		URL server_url = new URL(MyDb.get_server_url().get());
 		MinerMonitor miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, server_url);
 		miner_mon.setProperty("id", id.toString());
+		miner_mon.setProperty("plot_dirs",plot_dirs.stream().map(o->o.toAbsolutePath().toString()).toList());
 		miners.add(miner_mon);
 	}
 	
