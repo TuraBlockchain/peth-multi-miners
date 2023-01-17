@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>tura-miner</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
 
@@ -101,7 +101,32 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
+			<plugin>
+				<groupId>de.perdian.maven.plugins</groupId>
+				<artifactId>macosappbundler-maven-plugin</artifactId>
+				<version>1.20.0</version>
+				<configuration>
+					<plist>
+						<CFBundleIconFile>src/main/resources/app_icon.icns</CFBundleIconFile>
+						<CFBundleDisplayName>PearletJ</CFBundleDisplayName>
+						<JVMMainClassName>hk.zdl.crypto.tura.miner.main.Main</JVMMainClassName>
+						<JVMVersion>17+</JVMVersion>
+						<NSHumanReadableCopyright>${project.licenses[0].name}</NSHumanReadableCopyright>
+					</plist>
+					<dmg>
+						<generate>true</generate>
+						<autoFallback>true</autoFallback>
+					</dmg>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>		</plugins>
 	</build>
 	<repositories>
 		<repository>
