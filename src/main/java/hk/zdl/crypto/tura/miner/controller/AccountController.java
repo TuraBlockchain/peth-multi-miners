@@ -22,7 +22,7 @@ public class AccountController extends Controller {
 			return;
 		}
 		var jarr = new JSONArray();
-		MyDb.getAccounts().stream().map(o -> o.getStr("address")).map(BigInteger::new).forEach(jarr::put);
+		MyDb.getAccounts().stream().map(o -> o.getStr("ADDRESS")).map(BigInteger::new).forEach(jarr::put);
 		renderText(jarr.toString(), "application/json");
 	}
 
@@ -41,11 +41,10 @@ public class AccountController extends Controller {
 			}
 			var result = MyDb.insertAccount(id.toString(), passphase);
 			renderText(result ? "1" : "0");
-		} catch (Exception e) {
+		} catch (JSONException e) {
 			renderError(400);
 			return;
 		}
-		renderText("ok");
 	}
 
 	public void del() {

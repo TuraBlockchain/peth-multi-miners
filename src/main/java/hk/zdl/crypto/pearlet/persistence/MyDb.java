@@ -8,32 +8,10 @@ import java.util.Optional;
 
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
-import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
-import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
-import com.jfinal.plugin.c3p0.C3p0Plugin;
-
-import hk.zdl.crypto.pearlet.util.Util;
 
 public class MyDb {
-
-	static {
-		String db_url = Util.getDBURL();
-		C3p0Plugin dp = new C3p0Plugin(db_url, "", "");
-		ActiveRecordPlugin arp = new ActiveRecordPlugin(dp);
-		arp.setDialect(new AnsiSqlDialect());
-		dp.start();
-		arp.start();
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-
-			@Override
-			public void run() {
-				arp.stop();
-				dp.stop();
-			}
-		});
-	}
 
 	public static final List<String> getTables() {
 		return Db.query("select st.tablename from sys.systables st LEFT OUTER join sys.sysschemas ss on (st.schemaid = ss.schemaid) where ss.schemaname ='APP'");
@@ -105,7 +83,7 @@ public class MyDb {
 	public static final boolean deleteAccount(String address) {
 		var r = Db.findFirst("select * from ACCOUNTS WHERE ADDRESS = ?", address);
 		if (r != null) {
-			return Db.deleteById("ACCOUNTS", "ID", r.getInt("id"));
+			return Db.deleteById("ACCOUNTS", "ID", r.getInt("ID"));
 		} else {
 			return false;
 		}

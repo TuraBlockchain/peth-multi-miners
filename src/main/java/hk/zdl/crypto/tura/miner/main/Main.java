@@ -15,8 +15,8 @@ public class Main {
 
 	public static void main(String[] args) throws Throwable {
 		System.setProperty("derby.system.home", Files.createTempDirectory("derby-").toAbsolutePath().toString());
-		MyDb.create_missing_tables();
 		UndertowServer.start(TuraConfig.class, Util.getProp().getInt("local_port"), false);
+		MyDb.create_missing_tables();
 
 		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).map(BigInteger::new).forEach(i -> {
 			try {

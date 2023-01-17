@@ -4,7 +4,6 @@ import java.nio.file.Paths;
 
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 
@@ -49,6 +48,6 @@ public class MinerPathController extends Controller {
 		}
 		var id = getPara("id");
 		var paths = MyDb.getMinerPaths(id);
-		renderText(new Gson().toJson(paths), "application/json");
+		renderJson(paths.stream().map(o->o.toAbsolutePath().toString()).toList());
 	}
 }

@@ -10,7 +10,12 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
+import com.jfinal.plugin.c3p0.C3p0Plugin;
 import com.jfinal.template.Engine;
+
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class TuraConfig extends JFinalConfig {
 
@@ -38,6 +43,13 @@ public class TuraConfig extends JFinalConfig {
 
 	@Override
 	public void configPlugin(Plugins me) {
+		String db_url = Util.getDBURL();
+		C3p0Plugin dp = new C3p0Plugin(db_url, "", "");
+		ActiveRecordPlugin arp = new ActiveRecordPlugin(dp);
+		arp.setDialect(new AnsiSqlDialect());
+		dp.start();
+		arp.start();
+
 	}
 
 	@Override
