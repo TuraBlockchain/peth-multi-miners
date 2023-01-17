@@ -9,13 +9,12 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.formdev.flatlaf.util.SystemInfo;
@@ -29,22 +28,7 @@ import hk.zdl.crypto.tura.miner.util.Util;
 @Path(value = "/api/v1/plot")
 public class PlotController extends Controller {
 
-	static {
-		new Thread() {
-
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						q.take().run();
-					} catch (InterruptedException e) {
-						break;
-					}
-				}
-			}
-		}.start();
-	}
-	private static final BlockingQueue<Runnable> q = new LinkedBlockingQueue<>();
+	private static final ExecutorService es = Executors.newSingleThreadExecutor();
 	private static final List<PlotProgress> plot_progress = new LinkedList<>();
 	private static final Gson gson = new Gson();
 	private static File plotter_bin = null;
@@ -66,13 +50,7 @@ public class PlotController extends Controller {
 		}
 		PlotProgress prog = new PlotProgress(path);
 		prog.id = id;
-		q.offer(() -> {
-			try {
-				Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog).waitFor();
-			} catch (Exception e) {
-				Logger.getLogger(getClass()).error(e.getMessage(), e);
-			}
-		});
+		es.submit(()->Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog).waitFor());
 		plot_progress.add(prog);
 		renderText("plot queued!");
 	}
