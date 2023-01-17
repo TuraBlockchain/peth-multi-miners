@@ -16,40 +16,31 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.yaml.snakeyaml.Yaml;
 
 import hk.zdl.crypto.tura.miner.MinerMonitor;
 import hk.zdl.crypto.tura.miner.main.TuraConfig;
 
 public class Util {
+	private static final ExecutorService es = Executors.newCachedThreadPool(r->{
+		Thread t = new Thread(r);
+		t.setDaemon(true);
+		t.setPriority(Thread.MIN_PRIORITY);
+		return t;
+	});
 
-	public static final MinerMonitor buildMinerProces(Path miner_bin_path, Map<BigInteger, String> accounts, List<Path> plot_dirs, URL server_url) throws Exception {
-		if(!Files.exists(miner_bin_path.toAbsolutePath())) {
-			miner_bin_path = findPath(miner_bin_path);
-		}
-		Map<String, Object> m = new TreeMap<>();
-		m.put("account_id_to_secret_phrase", accounts);
-		m.put("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).collect(Collectors.toList()));
-		m.put("url", server_url.toString());
-		m.put("hdd_reader_thread_count", 0);
-		m.put("cpu_threads", 0);
-		m.put("cpu_worker_task_count", 4);
-		m.put("gpu_threads", 1);
-		m.put("console_log_pattern", "{m}{n}");
-		Path tmp_file_path = Files.createTempFile("miner-conf-", ".yaml");
-		tmp_file_path.toFile().deleteOnExit();
-		new Yaml().dump(Files.newBufferedWriter(tmp_file_path));
-
-		Process proc = new ProcessBuilder(miner_bin_path.toString(), "-c", tmp_file_path.toAbsolutePath().toString()).start();
-
-		MinerMonitor mon = new MinerMonitor(proc);
-		MySingleton.es.submit(mon);
+	public static MinerMonitor buildMinerProces(BigInteger id, String passphrase, List<Path> plot_dirs, URL server_url) throws Exception {
+		var conf_file = LocalMiner.build_conf_file(id.toString(), passphrase, plot_dirs, server_url, null);
+		var miner_bin = LocalMiner.copy_miner();
+		var proc = LocalMiner.build_process(miner_bin, conf_file);
+		var mon = new MinerMonitor(proc);
+		es.submit(mon);
 		return mon;
 	}
 
@@ -156,7 +147,7 @@ public class Util {
 				reader.close();
 				throw new IOException(line.substring("Error: ".length()));
 			} else if (line.equals("Starting plotting...")) {
-				MySingleton.es.submit(new Callable<Void>() {
+				es.submit(new Callable<Void>() {
 
 					@Override
 					public Void call() throws Exception {
@@ -178,7 +169,7 @@ public class Util {
 				break;
 			}
 		}
-		MySingleton.es.submit(new Callable<Void>() {
+		es.submit(new Callable<Void>() {
 
 			@Override
 			public Void call() throws Exception {
@@ -212,4 +203,5 @@ public class Util {
 	private static final Path findPath(Path p) throws IOException{
 		return IOUtils.readLines(new ProcessBuilder().command("which",p.toString()).start().getInputStream(), "UTF-8").stream().map(Paths::get).findFirst().get();
 	}
+
 }

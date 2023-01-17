@@ -1,14 +1,21 @@
 package hk.zdl.crypto.tura.miner.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.formdev.flatlaf.util.SystemInfo;
 import com.google.gson.Gson;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
@@ -41,7 +48,8 @@ public class PlotController extends Controller {
 		}
 		PlotProgress prog = new PlotProgress(_path);
 		try {
-			Util.plot(Paths.get(""), Paths.get(_path), false, id, sn, nounces, prog);
+			var plot_bin = copy_plotter();
+			Util.plot(plot_bin.toPath(), Paths.get(_path), false, id, sn, nounces, prog);
 		} catch (IOException e) {
 			if (e.getMessage().contains("insufficient disk space")) {
 				renderError(507, new TextRender(e.getMessage()));
@@ -50,11 +58,49 @@ public class PlotController extends Controller {
 			}
 		}
 		plot_progress.add(prog);
-		renderJson("plot started!");
+		renderText("plot started!");
 	}
 
 	public void list() {
 		renderText(gson.toJson(plot_progress), "application/json");
+	}
+
+	private static File copy_plotter() throws IOException {
+		String suffix = "";
+		if (SystemInfo.isWindows) {
+			suffix = ".exe";
+		}
+		File tmp_file = File.createTempFile("plotter-", suffix);
+		tmp_file.deleteOnExit();
+		String in_filename = "";
+		if (SystemInfo.isLinux) {
+			in_filename = "signum-plotter";
+		} else if (SystemInfo.isWindows) {
+			in_filename = "signum-plotter.exe";
+		} else if (SystemInfo.isMacOS) {
+			in_filename = "signum-plotter-x86_64-apple-darwin.zip";
+		}
+		InputStream in = PlotController.class.getClassLoader().getResourceAsStream("plotter/" + in_filename);
+		FileOutputStream out = new FileOutputStream(tmp_file);
+		IOUtils.copy(in, out);
+		out.flush();
+		out.close();
+		in.close();
+		if (SystemInfo.isMacOS) {
+			ZipFile zipfile = new ZipFile(tmp_file);
+			ZipEntry entry = zipfile.stream().findAny().get();
+			in = zipfile.getInputStream(entry);
+			tmp_file = File.createTempFile("plotter-", ".app");
+			tmp_file.deleteOnExit();
+			out = new FileOutputStream(tmp_file);
+			IOUtils.copy(in, out);
+			out.flush();
+			out.close();
+			in.close();
+			zipfile.close();
+		}
+		tmp_file.setExecutable(true);
+		return tmp_file;
 	}
 
 	public static final class PlotProgress implements PlotProgressListener {

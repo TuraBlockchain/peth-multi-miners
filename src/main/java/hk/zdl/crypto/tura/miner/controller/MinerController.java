@@ -16,7 +16,7 @@ public class MinerController extends Controller {
 			renderError(405);
 			return;
 		}
-		renderJson(MinerProcessManager.me.list_miners());
+		renderJson(MinerProcessManager.me.list_miners().stream().map(o->o.entrySet()).toList());
 	}
 
 	public void start() {

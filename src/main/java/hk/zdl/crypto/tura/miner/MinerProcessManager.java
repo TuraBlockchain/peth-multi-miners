@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import tura.miner.util.Util;
@@ -24,11 +23,9 @@ public class MinerProcessManager {
 			}
 		}
 		String passphrase = MyDb.getAccount(id.toString()).get().getStr("PASSPHRASE");
-		Path miner_bin_path = null;
-		Map<BigInteger, String> accounts = Collections.singletonMap(id, passphrase);
 		List<Path> plot_dirs = MyDb.getMinerPaths(id.toString());
 		URL server_url = new URL(MyDb.get_server_url().get());
-		MinerMonitor miner_mon = Util.buildMinerProces(miner_bin_path, accounts, plot_dirs, server_url);
+		MinerMonitor miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, server_url);
 		miner_mon.setProperty("id", id.toString());
 		miners.add(miner_mon);
 	}
