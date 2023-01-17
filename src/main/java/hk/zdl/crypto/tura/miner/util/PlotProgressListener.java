@@ -1,4 +1,4 @@
-package tura.miner.util;
+package hk.zdl.crypto.tura.miner.util;
 
 public interface PlotProgressListener {
 

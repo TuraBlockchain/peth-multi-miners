@@ -1,4 +1,4 @@
-package tura.miner.util;
+package hk.zdl.crypto.tura.miner.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -160,6 +160,11 @@ public class Util {
 							} else if (line.isEmpty() || line.equals("[2A")) {
 								continue;
 							} else {
+								if (line.contains("鈹傗")) {
+									byte[] bArr = line.getBytes("GBK");
+									line = new String(bArr, "UTF-8");
+									line = line.replace("�?", "│");
+								}
 								queue.offer(line);
 							}
 						}

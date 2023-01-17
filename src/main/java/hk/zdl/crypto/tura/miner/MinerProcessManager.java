@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import tura.miner.util.Util;
+import hk.zdl.crypto.tura.miner.util.Util;
 
 public class MinerProcessManager {
 	

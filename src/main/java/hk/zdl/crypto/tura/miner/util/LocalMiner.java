@@ -1,4 +1,4 @@
-package tura.miner.util;
+package hk.zdl.crypto.tura.miner.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -28,7 +27,7 @@ public class LocalMiner {
 		if (console_log_pattern == null || console_log_pattern.isBlank()) {
 			console_log_pattern = default_console_log_pattern;
 		}
-		Map<String, Object> m = new TreeMap<>();
+		var m = new TreeMap<>();
 		if (id != null && passphrase != null) {
 			m.put("account_id_to_secret_phrase", Collections.singletonMap(new BigInteger(id), passphrase));
 		}
