@@ -2,7 +2,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>tura-miner</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
+	<name>tura-miner</name>
+	<description>tura miner
+	manager program for multi-id mining management
+	</description>
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
 
@@ -102,13 +106,70 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<artifactId>jdeb</artifactId>
+				<groupId>org.vafer</groupId>
+				<version>1.10</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jdeb</goal>
+						</goals>
+						<configuration>
+							<snapshotExpand>true</snapshotExpand>
+							<dataSet>
+								<data>
+									<src>${project.build.directory}/${project.build.finalName}.jar</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/${project.artifactId}</prefix>
+										<filemode>755</filemode>
+									</mapper>
+								</data>
+								<data>
+									<type>link</type>
+									<symlink>true</symlink>
+									<linkName>/usr/share/${project.artifactId}/${project.artifactId}.jar</linkName>
+									<linkTarget>${project.build.directory}/${project.build.finalName}.jar</linkTarget>
+								</data>
+								<data>
+									<src>${project.build.directory}/lib</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/${project.artifactId}/lib</prefix>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/main/resources/app_icon.png</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/${project.artifactId}</prefix>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/service</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/lib/systemd/system</prefix>
+										<filemode>755</filemode>
+									</mapper>
+								</data>
+							</dataSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>de.perdian.maven.plugins</groupId>
 				<artifactId>macosappbundler-maven-plugin</artifactId>
 				<version>1.20.0</version>
 				<configuration>
 					<plist>
 						<CFBundleIconFile>src/main/resources/app_icon.icns</CFBundleIconFile>
-						<CFBundleDisplayName>PearletJ</CFBundleDisplayName>
 						<JVMMainClassName>hk.zdl.crypto.tura.miner.main.Main</JVMMainClassName>
 						<JVMVersion>17+</JVMVersion>
 						<NSHumanReadableCopyright>${project.licenses[0].name}</NSHumanReadableCopyright>
@@ -126,7 +187,8 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>		</plugins>
+			</plugin>
+		</plugins>
 	</build>
 	<repositories>
 		<repository>

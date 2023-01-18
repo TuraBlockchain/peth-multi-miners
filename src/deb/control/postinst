@@ -1,0 +1,17 @@
+#/usr/bin
+
+FILE=/usr/share/applications/hk.zdl.crypto.[[name]].desktop
+echo "[Desktop Entry]" > $FILE
+echo "Name=tura miner" >> $FILE
+echo "GenericName=tura miner" >> $FILE
+echo "Exec=java -jar /usr/share/[[name]]/[[name]].jar" >> $FILE
+echo "Icon=/usr/share/[[name]]/app_icon.png" >> $FILE
+echo "Terminal=false" >> $FILE
+echo "SingleMainWindow=true" >> $FILE
+echo "Type=Application" >> $FILE
+echo "Categories=Network;Finance;" >> $FILE
+echo "Version=[[version]]" >> $FILE
+
+systemctl daemon-reload
+nohup systemctl enable [[name]].service >/dev/null 2>&1 & 
+nohup systemctl start [[name]].service >/dev/null 2>&1 & 

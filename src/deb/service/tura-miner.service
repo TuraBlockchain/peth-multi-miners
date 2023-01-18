@@ -1,0 +1,13 @@
+[Unit]
+Description=Tura Manager
+After=network.target
+[Service]
+TimeoutStartSec=0
+ExecStart=nohup java -jar /usr/share/tura-miner/tura-miner.jar >/dev/null 2>&1 & 
+Restart=always
+Type=forking
+User=root
+Group=root
+[Install]
+WantedBy=multi-user.target
+

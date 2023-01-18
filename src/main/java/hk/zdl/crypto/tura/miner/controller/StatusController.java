@@ -20,10 +20,10 @@ public class StatusController extends Controller {
 		if (SystemInfo.isLinux) {
 			map.put("memory", Util.systemMemory());
 			Map disk = Util.diskUsage().get("/");
+			map.put("disk", Util.diskUsage().get("/"));
 			if (TuraConfig.isRunningOnRoot()) {
 				try {
 					disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
-					map.put("disk", disk);
 				} catch (Exception e) {
 				}
 			}

@@ -58,16 +58,16 @@ public class Util {
 		return map;
 	}
 
-	public static final Map<String, Map<String, String>> diskUsage() {
-		Map<String, Map<String, String>> map = new TreeMap<>();
+	public static final Map<String, Map<String, Object>> diskUsage() {
+		Map<String, Map<String, Object>> map = new TreeMap<>();
 		try {
 			Process process = new ProcessBuilder("df").start();
 			IOUtils.readLines(process.getInputStream(), "UTF-8").stream().filter(s -> s.startsWith("/")).map(s -> s.split("\\s+")).forEach(s -> {
-				Map<String, String> m = new TreeMap<>();
+				Map<String, Object> m = new TreeMap<>();
 				m.put("device", s[0]);
-				m.put("size", s[1]);
-				m.put("used", s[2]);
-				m.put("avail", s[3]);
+				m.put("size", Long.valueOf(s[1]));
+				m.put("used", Long.valueOf(s[2]));
+				m.put("avail", Long.valueOf(s[3]));
 				m.put("ratio", s[4]);
 				map.put(s[5], m);
 			});
