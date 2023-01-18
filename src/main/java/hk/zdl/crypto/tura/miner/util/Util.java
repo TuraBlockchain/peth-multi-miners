@@ -69,7 +69,7 @@ public class Util {
 				m.put("used", Long.valueOf(s[2]));
 				m.put("avail", Long.valueOf(s[3]));
 				m.put("ratio", s[4]);
-				map.put(s[5], m);
+				map.put(s[s.length - 1], m);
 			});
 		} catch (IOException e) {
 		}

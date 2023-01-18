@@ -17,19 +17,21 @@ public class StatusController extends Controller {
 	public void index() {
 		var map = new TreeMap<>();
 		map.put("version", 1);
-		if (SystemInfo.isLinux) {
-			map.put("memory", Util.systemMemory());
+		if (SystemInfo.isLinux || SystemInfo.isMacOS_10_11_ElCapitan_orLater) {
 			Map disk = Util.diskUsage().get("/");
 			map.put("disk", Util.diskUsage().get("/"));
-			if (TuraConfig.isRunningOnRoot()) {
-				try {
-					disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
-				} catch (Exception e) {
+			if (SystemInfo.isLinux) {
+				map.put("memory", Util.systemMemory());
+				if (TuraConfig.isRunningOnRoot()) {
+					try {
+						disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
+					} catch (Exception e) {
+					}
 				}
-			}
-			try {
-				map.put("CPU Temp", Util.isa_temputure_cel());
-			} catch (Exception x) {
+				try {
+					map.put("CPU Temp", Util.isa_temputure_cel());
+				} catch (Exception x) {
+				}
 			}
 		}
 
