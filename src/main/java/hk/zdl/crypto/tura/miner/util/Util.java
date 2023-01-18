@@ -61,7 +61,7 @@ public class Util {
 	public static final Map<String, Map<String, Object>> diskUsage() {
 		Map<String, Map<String, Object>> map = new TreeMap<>();
 		try {
-			Process process = new ProcessBuilder("df").start();
+			Process process = new ProcessBuilder("df", "-b").start();
 			IOUtils.readLines(process.getInputStream(), "UTF-8").stream().filter(s -> s.startsWith("/")).map(s -> s.split("\\s+")).forEach(s -> {
 				Map<String, Object> m = new TreeMap<>();
 				m.put("device", s[0]);
