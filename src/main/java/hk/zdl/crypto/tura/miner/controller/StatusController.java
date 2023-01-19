@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import com.formdev.flatlaf.util.SystemInfo;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
+import com.profesorfalken.jsensors.JSensors;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.tura.miner.MinerProcessManager;
@@ -42,6 +43,14 @@ public class StatusController extends Controller {
 			try {
 				map.put("CPU Temp", Util.isa_temputure_cel());
 			} catch (Exception x) {
+			}
+		}
+		if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
+			if(map.get("CPU Temp")==null) {
+				try {
+					JSensors.get.components().cpus.stream().flatMap(o -> o.sensors.temperatures.stream()).mapToDouble(o -> o.value).average().ifPresent(o -> map.put("CPU Temp", o));
+				} catch (Exception e) {
+				}
 			}
 		}
 		var miner = new TreeMap<>();
