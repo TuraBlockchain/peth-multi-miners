@@ -63,8 +63,7 @@ public class MinerMonitor extends Thread {
 				if (line.isEmpty()) {
 					continue;
 				}
-				System.out.println(line);
-				map.put("last_refresh", System.currentTimeMillis());
+				map.put("last refresh", System.currentTimeMillis());
 				var level = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
 				line = line.substring(line.indexOf(']') + 1);
 				if (level.equals("ERROR")) {

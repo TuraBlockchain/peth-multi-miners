@@ -49,7 +49,6 @@ public class TuraConfig extends JFinalConfig {
 		arp.setDialect(new AnsiSqlDialect());
 		dp.start();
 		arp.start();
-
 	}
 
 	@Override
