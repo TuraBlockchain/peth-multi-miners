@@ -46,15 +46,13 @@ public class Util {
 
 	public static final Map<String, Long> systemMemory() {
 		Map<String, Long> map = new TreeMap<>();
-		try {
-			Process process = new ProcessBuilder("free", "-b", "-t").start();
-			List<String> list = IOUtils.readLines(process.getInputStream(), "UTF-8");
-			String[] line = list.get(list.size() - 1).replace("：", " ").split("\\s+");
-			map.put("total", Long.valueOf(line[1]));
-			map.put("used", Long.valueOf(line[2]));
-			map.put("free", Long.valueOf(line[3]));
-		} catch (IOException e) {
-		}
+		Runtime rt = Runtime.getRuntime();
+		long total_mem = rt.totalMemory();
+		long free_mem = rt.freeMemory();
+		long used_mem = total_mem - free_mem;
+		map.put("total", total_mem);
+		map.put("used", used_mem);
+		map.put("free", free_mem);
 		return map;
 	}
 

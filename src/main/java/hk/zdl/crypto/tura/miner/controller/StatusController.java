@@ -16,7 +16,8 @@ public class StatusController extends Controller {
 	public void index() {
 		var file = new File(".");
 		var map = new TreeMap<>();
-		map.put("version", 1);
+		map.put("version", hk.zdl.crypto.pearlet.util.Util.getAppVersion());
+		map.put("memory", Util.systemMemory());
 		var disk = new TreeMap<>();
 		disk.put("device", "default");
 		disk.put("size", file.getTotalSpace());
@@ -27,7 +28,6 @@ public class StatusController extends Controller {
 		disk.put("ratio", (int) (ratio * 100) + "%");
 		map.put("disk", disk);
 		if (SystemInfo.isLinux) {
-			map.put("memory", Util.systemMemory());
 			if (TuraConfig.isRunningOnRoot()) {
 				try {
 					disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
