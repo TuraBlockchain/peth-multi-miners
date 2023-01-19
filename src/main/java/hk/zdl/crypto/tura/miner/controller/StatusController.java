@@ -8,6 +8,7 @@ import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.tura.miner.MinerProcessManager;
 import hk.zdl.crypto.tura.miner.main.TuraConfig;
 import hk.zdl.crypto.tura.miner.util.Util;
 
@@ -19,7 +20,7 @@ public class StatusController extends Controller {
 	public void index() {
 		var file = new File(".");
 		var map = new TreeMap<>();
-		map.put("start_time", start_time);
+		map.put("start time", start_time);
 		map.put("version", hk.zdl.crypto.pearlet.util.Util.getAppVersion());
 		map.put("memory", Util.systemMemory());
 		var disk = new TreeMap<>();
@@ -44,9 +45,9 @@ public class StatusController extends Controller {
 			}
 		}
 		var miner = new TreeMap<>();
-		miner.put("account_count", MyDb.getAccountCount());
-		miner.put("plot_file_count", 0);
-		miner.put("plot_file_size", 0);
+		miner.put("account count", MyDb.getAccountCount());
+		miner.put("plot file count", MinerProcessManager.me.list_miners().stream().mapToInt(o -> o.getFileCount()).sum());
+		miner.put("plot file size", MinerProcessManager.me.list_miners().stream().mapToDouble(o -> o.getCapacity()).sum());
 		map.put("miner", miner);
 		renderJson(map);
 

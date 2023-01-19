@@ -2,7 +2,6 @@ package hk.zdl.crypto.tura.miner;
 
 import java.math.BigInteger;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,18 +16,19 @@ public class MinerProcessManager {
 	private List<MinerMonitor> miners = Collections.synchronizedList(new LinkedList<MinerMonitor>());
 
 	public synchronized final void start_miner(BigInteger id) throws Exception {
-		for(MinerMonitor m:miners) {
+		for(var m:miners) {
 			if(m.getProperty("id").equals(id.toString())) {
 				throw new IllegalStateException("There's already a process for "+id);
 			}
 		}
-		String passphrase = MyDb.getAccount(id.toString()).get().getStr("PASSPHRASE");
-		List<Path> plot_dirs = MyDb.getMinerPaths(id.toString());
-		URL server_url = new URL(MyDb.get_server_url().get());
-		MinerMonitor miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, server_url);
+		var passphrase = MyDb.getAccount(id.toString()).get().getStr("PASSPHRASE");
+		var plot_dirs = MyDb.getMinerPaths(id.toString());
+		var server_url = new URL(MyDb.get_server_url().get());
+		var miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, server_url);
 		miner_mon.setProperty("id", id.toString());
 		miner_mon.setProperty("plot_dirs",plot_dirs.stream().map(o->o.toAbsolutePath().toString()).toList());
 		miners.add(miner_mon);
+		miner_mon.start();
 	}
 	
 	public synchronized final void stop_miner(BigInteger id) throws Exception {

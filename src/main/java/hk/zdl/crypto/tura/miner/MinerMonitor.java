@@ -8,13 +8,16 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-public class MinerMonitor implements Runnable {
+public class MinerMonitor extends Thread {
 
 	private final Process proc;
 	private final BufferedReader reader;
-	private final Map<String,Object> map = new TreeMap<>();;
+	private final Map<String, Object> map = new TreeMap<>();
+	private int file_count = 0;
+	private double capacity = 0;
 
 	public MinerMonitor(Process proc) {
+		super(MinerMonitor.class.getSimpleName());
 		this.proc = proc;
 		reader = proc.inputReader();
 	}
@@ -39,9 +42,17 @@ public class MinerMonitor implements Runnable {
 		return map.entrySet();
 	}
 
+	public int getFileCount() {
+		return file_count;
+	}
+
+	public double getCapacity() {
+		return capacity;
+	}
+
 	@Override
 	public void run() {
-		map.put("start_time", System.currentTimeMillis());
+		map.put("start time", System.currentTimeMillis());
 		try {
 			while (true) {
 				String line = reader.readLine();
@@ -52,9 +63,25 @@ public class MinerMonitor implements Runnable {
 				if (line.isEmpty()) {
 					continue;
 				}
-				if (line.startsWith("plot files loaded:")) {
+				System.out.println(line);
+				map.put("last_refresh", System.currentTimeMillis());
+				var level = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+				line = line.substring(line.indexOf(']') + 1);
+				if (level.equals("ERROR")) {
+					var err = new TreeMap<>();
+					err.put("msg", line);
+					err.put("time", System.currentTimeMillis());
+					map.put("last error", err);
+				} else if (line.startsWith("path=")) {
+					line = line.split(", ")[1];
+					line = line.substring(line.indexOf('=') + 1);
+					file_count += Integer.parseInt(line);
+				} else if (line.startsWith("plot files loaded:")) {
 					String cap = line.substring(line.indexOf("total capacity=") + "total capacity=".length());
-					map.put("total capacity", cap);
+					cap = cap.replace(" TiB", "");
+					capacity = Double.parseDouble(cap);
+					map.put("file count", file_count);
+					map.put("capacity", capacity);
 				} else if (line.startsWith("new block:")) {
 					Stream.of(line.substring("new block:".length() + 1).split(",")).map(s -> s.split("=")).forEach(o -> {
 						map.put(o[0].trim(), Long.parseLong(o[1].trim()));

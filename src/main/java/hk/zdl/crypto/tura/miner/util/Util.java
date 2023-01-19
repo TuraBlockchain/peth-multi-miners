@@ -40,7 +40,6 @@ public class Util {
 		var miner_bin = LocalMiner.copy_miner();
 		var proc = LocalMiner.build_process(miner_bin, conf_file);
 		var mon = new MinerMonitor(proc);
-		es.submit(mon);
 		return mon;
 	}
 
