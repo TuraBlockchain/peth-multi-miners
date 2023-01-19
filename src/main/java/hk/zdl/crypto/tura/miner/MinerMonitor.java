@@ -64,8 +64,11 @@ public class MinerMonitor extends Thread {
 					continue;
 				}
 				map.put("last refresh", System.currentTimeMillis());
-				var level = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
-				line = line.substring(line.indexOf(']') + 1);
+				var level = "";
+				if (line.indexOf('[') > -1 && line.indexOf(']') > -1) {
+					line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+					line = line.substring(line.indexOf(']') + 1);
+				}
 				if (level.equals("ERROR")) {
 					var err = new TreeMap<>();
 					err.put("msg", line);
