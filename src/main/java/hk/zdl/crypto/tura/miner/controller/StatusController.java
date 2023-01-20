@@ -36,7 +36,7 @@ public class StatusController extends Controller {
 		if (SystemInfo.isLinux) {
 			if (TuraConfig.isRunningOnRoot()) {
 				try {
-					disk.put("temp_cel", Util.disk_temputure_cel(disk.get("device").toString().replaceAll("\\d", "")));
+					disk.put("temp_cel", Util.disk_temputure_cel(Util.diskUsage().get("/").get("device").toString().replaceAll("\\d", "")));
 				} catch (Exception e) {
 				}
 			}
