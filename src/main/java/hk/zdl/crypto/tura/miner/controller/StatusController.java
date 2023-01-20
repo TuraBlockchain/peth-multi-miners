@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import com.formdev.flatlaf.util.SystemInfo;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
-import com.profesorfalken.jsensors.JSensors;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.tura.miner.MinerProcessManager;
@@ -44,13 +43,13 @@ public class StatusController extends Controller {
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 				}
-				try {
-					var a = new TreeMap<>();
-					a.put("temp_cel", Util.isa_temputure_cel());
-					map.put("cpu", a);
-				} catch (Exception x) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-				}
+			}
+			try {
+				var a = new TreeMap<>();
+				a.put("temp_cel", Util.isa_temputure_cel());
+				map.put("cpu", a);
+			} catch (Exception x) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}
 		}
 		if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
