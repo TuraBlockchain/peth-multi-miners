@@ -18,11 +18,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import com.profesorfalken.jsensors.JSensors;
 
 import hk.zdl.crypto.tura.miner.MinerMonitor;
 import hk.zdl.crypto.tura.miner.main.TuraConfig;
@@ -41,6 +44,15 @@ public class Util {
 		var proc = LocalMiner.build_process(miner_bin, conf_file);
 		var mon = new MinerMonitor(proc);
 		return mon;
+	}
+	
+	public static final Future<Double> cpu_temp(){
+		return es.submit(new Callable<Double>() {
+
+			@Override
+			public Double call() throws Exception {
+				return JSensors.get.components().cpus.stream().findAny().get().sensors.temperatures.stream().findAny().get().value;
+			}});
 	}
 
 	public static final Map<String, Long> systemMemory() {
