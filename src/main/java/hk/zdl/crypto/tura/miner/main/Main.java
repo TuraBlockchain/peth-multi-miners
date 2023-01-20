@@ -1,5 +1,6 @@
 package hk.zdl.crypto.tura.miner.main;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -9,6 +10,8 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 
@@ -36,22 +39,27 @@ public class Main {
 			}
 		});
 		if (SystemInfo.isMacOS || SystemInfo.isWindows) {
-			try {
-				var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-				var quit_menu_item = new MenuItem("Quit");
-				quit_menu_item.addActionListener((e) -> {
-					server.stop();
-					System.exit(0);
-				});
-				var menu = new PopupMenu();
-				menu.add(quit_menu_item);
-				var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
-				trayIcon.setImageAutoSize(true);
-				SystemTray.getSystemTray().add(trayIcon);
-				Taskbar.getTaskbar().setIconImage(app_icon);
-			} catch (Exception e) {
+			if (!GraphicsEnvironment.isHeadless()) {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
+					var quit_menu_item = new MenuItem("Quit");
+					quit_menu_item.addActionListener((e) -> {
+						if (JOptionPane.showConfirmDialog(null, "Are you sure to quit tura miner?", "Quit", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+							server.stop();
+							System.exit(0);
+						}
+					});
+					var menu = new PopupMenu();
+					menu.add(quit_menu_item);
+					var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
+					trayIcon.setImageAutoSize(true);
+					SystemTray.getSystemTray().add(trayIcon);
+					Taskbar.getTaskbar().setIconImage(app_icon);
+				} catch (Exception e) {
+					Logger.getLogger(Main.class).error(e.getMessage(), e);
+				}
 			}
-
 		}
 	}
 
