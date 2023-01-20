@@ -43,10 +43,12 @@ public class StatusController extends Controller {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 				}
 				try {
-					map.put("CPU Temp", Util.isa_temputure_cel());
+					var a = new TreeMap<>();
+					a.put("temp_cel", Util.isa_temputure_cel());
+					map.put("cpu", a);
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-				} 
+				}
 			}
 		}
 		if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
