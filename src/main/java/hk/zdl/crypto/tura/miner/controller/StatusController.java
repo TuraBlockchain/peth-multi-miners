@@ -2,6 +2,8 @@ package hk.zdl.crypto.tura.miner.controller;
 
 import java.io.File;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.jfinal.core.Controller;
@@ -37,19 +39,22 @@ public class StatusController extends Controller {
 			if (TuraConfig.isRunningOnRoot()) {
 				try {
 					disk.put("temp_cel", Util.disk_temputure_cel(Util.diskUsage().get("/").get("device").toString().replaceAll("\\d", "")));
-				} catch (Exception e) {
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 				}
-			}
-			try {
-				map.put("CPU Temp", Util.isa_temputure_cel());
-			} catch (Exception x) {
+				try {
+					map.put("CPU Temp", Util.isa_temputure_cel());
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+				} 
 			}
 		}
 		if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
-			if(map.get("CPU Temp")==null) {
+			if (map.get("CPU Temp") == null) {
 				try {
 					JSensors.get.components().cpus.stream().flatMap(o -> o.sensors.temperatures.stream()).mapToDouble(o -> o.value).average().ifPresent(o -> map.put("CPU Temp", o));
-				} catch (Exception e) {
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 				}
 			}
 		}
