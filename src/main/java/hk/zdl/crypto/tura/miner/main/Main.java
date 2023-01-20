@@ -38,7 +38,6 @@ public class Main {
 		if (SystemInfo.isMacOS || SystemInfo.isWindows) {
 			try {
 				var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-				Taskbar.getTaskbar().setIconImage(app_icon);
 				var quit_menu_item = new MenuItem("Quit");
 				quit_menu_item.addActionListener((e) -> {
 					server.stop();
@@ -49,6 +48,7 @@ public class Main {
 				var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
 				trayIcon.setImageAutoSize(true);
 				SystemTray.getSystemTray().add(trayIcon);
+				Taskbar.getTaskbar().setIconImage(app_icon);
 			} catch (Exception e) {
 			}
 
