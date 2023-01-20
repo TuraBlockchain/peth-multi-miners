@@ -1,7 +1,9 @@
 package hk.zdl.crypto.tura.miner.controller;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,9 +54,10 @@ public class StatusController extends Controller {
 			}
 		}
 		if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
-			if (map.get("CPU Temp") == null) {
+			if (map.get("cpu") == null) {
 				try {
-					JSensors.get.components().cpus.stream().flatMap(o -> o.sensors.temperatures.stream()).mapToDouble(o -> o.value).average().ifPresent(o -> map.put("CPU Temp", o));
+					var t = Util.cpu_temp().get(1, TimeUnit.SECONDS);
+					map.put("cpu", Collections.singletonMap("temp_cel", t));
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 				}
