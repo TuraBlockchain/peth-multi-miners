@@ -1,11 +1,11 @@
 package hk.zdl.crypto.tura.miner.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,7 +57,7 @@ public class Util {
 
 	public static final Map<String, Long> systemMemory() {
 		Map<String, Long> map = new TreeMap<>();
-		Runtime rt = Runtime.getRuntime();
+		var rt = Runtime.getRuntime();
 		long total_mem = rt.totalMemory();
 		long free_mem = rt.freeMemory();
 		long used_mem = total_mem - free_mem;
@@ -109,9 +109,9 @@ public class Util {
 
 			@Override
 			public String call() throws Exception {
-				String host = new URL(url).getHost();
-				Process process = new ProcessBuilder("ping", "-c", "1", host).start();
-				List<String> lines = IOUtils.readLines(process.getInputStream(), "UTF-8");
+				var host = new URL(url).getHost();
+				var process = new ProcessBuilder("ping", "-c", "1", host).start();
+				var lines = IOUtils.readLines(process.getInputStream(), Charset.defaultCharset());
 				String str = lines.get(lines.size() - 1);
 				str = str.substring(str.indexOf("=") + 1);
 				str = str.substring(0, str.indexOf("/"));
@@ -139,18 +139,18 @@ public class Util {
 		} else if (!target.toFile().isDirectory()) {
 			throw new IOException("not dir: " + target.toString());
 		}
-		List<String> l = new LinkedList<>();
+		var l = new LinkedList<String>();
 		l.add(plot_bin.toAbsolutePath().toString());
 		if (benchmark) {
 			l.add("-b");
 		}
 		l.addAll(Arrays.asList("--id", id.toString(), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
-		Process proc = new ProcessBuilder(l).start();
+		var proc = new ProcessBuilder(l).start();
 		try {
 			Thread.sleep(100);
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 		}
-		BufferedReader reader = proc.inputReader();
+		var reader = proc.inputReader(Charset.defaultCharset());
 		BlockingQueue<String> queue = new LinkedBlockingQueue<>();
 		while (true) {
 			String line = reader.readLine();

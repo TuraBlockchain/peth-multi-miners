@@ -55,7 +55,7 @@ public class MinerMonitor extends Thread {
 		map.put("start time", System.currentTimeMillis());
 		try {
 			while (true) {
-				String line = reader.readLine();
+				var line = reader.readLine();
 				if (line == null) {
 					break;
 				}
