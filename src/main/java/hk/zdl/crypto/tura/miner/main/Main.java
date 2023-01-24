@@ -8,12 +8,12 @@ import java.awt.Taskbar;
 import java.awt.TrayIcon;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-
-import org.apache.log4j.Logger;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.jfinal.server.undertow.UndertowServer;
@@ -36,7 +36,7 @@ public class Main {
 			try {
 				MinerProcessManager.me.start_miner(i);
 			} catch (Exception e) {
-				Logger.getLogger(Main.class).error(e.getMessage(), e);
+				Logger.getLogger("").log(Level.SEVERE, e.getMessage(), e);
 			}
 		});
 		if (SystemInfo.isMacOS || SystemInfo.isWindows) {
@@ -60,7 +60,7 @@ public class Main {
 						Taskbar.getTaskbar().setIconImage(app_icon);
 					}
 				} catch (Exception e) {
-					Logger.getLogger(Main.class).error(e.getMessage(), e);
+					Logger.getLogger("").log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 		}
