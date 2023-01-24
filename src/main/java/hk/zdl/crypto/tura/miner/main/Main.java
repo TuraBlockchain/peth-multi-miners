@@ -56,7 +56,9 @@ public class Main {
 					var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
 					trayIcon.setImageAutoSize(true);
 					SystemTray.getSystemTray().add(trayIcon);
-					Taskbar.getTaskbar().setIconImage(app_icon);
+					if(Taskbar.getTaskbar().isSupported(Taskbar.Feature.ICON_IMAGE)) {
+						Taskbar.getTaskbar().setIconImage(app_icon);
+					}
 				} catch (Exception e) {
 					Logger.getLogger(Main.class).error(e.getMessage(), e);
 				}

@@ -5,7 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +29,7 @@ import hk.zdl.crypto.tura.miner.util.Util;
 public class PlotController extends Controller {
 
 	private static final ExecutorService es = Executors.newSingleThreadExecutor();
-	private static final List<PlotProgress> plot_progress = new LinkedList<>();
+	private static final List<PlotProgress> plot_progress = Collections.synchronizedList(new ArrayList<>());
 	private static final Gson gson = new Gson();
 	private static File plotter_bin = null;
 
@@ -47,18 +48,8 @@ public class PlotController extends Controller {
 		if (plotter_bin == null) {
 			plotter_bin = copy_plotter();
 		}
-		var prog = new PlotProgress(id, path) {
-			boolean restart = jobj.optBoolean("restart");
-
-			@Override
-			public void onProgress(Type type, float progress, String rate, String eta) {
-				super.onProgress(type, progress, rate, eta);
-				if (restart && type == Type.WRIT && progress >= 100) {
-					restart_miner(id);
-				}
-			}
-		};
-
+		var prog = new PlotProgress(id, path);
+		prog.restart = jobj.optBoolean("restart");
 		es.submit(() -> Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog).waitFor());
 		plot_progress.add(prog);
 		renderText("plot queued!");
@@ -68,7 +59,7 @@ public class PlotController extends Controller {
 		renderText(gson.toJson(plot_progress), "application/json");
 	}
 
-	protected void restart_miner(BigInteger id) {
+	protected static void restart_miner(BigInteger id) {
 		try {
 			MinerProcessManager.me.stop_miner(id);
 		} catch (Exception e) {
@@ -119,6 +110,7 @@ public class PlotController extends Controller {
 
 	public static class PlotProgress implements PlotProgressListener {
 		BigInteger id;
+		boolean restart;
 		String path, hash_rate, hash_eta, write_rate, write_eta;
 		float hash_progress, write_progress;
 
@@ -144,12 +136,14 @@ public class PlotController extends Controller {
 				break;
 
 			}
+			if (restart && type == Type.WRIT && progress >= 100) {
+				restart_miner(id);
+			}
 		}
 
 		@Override
 		public String toString() {
-			return "PlotProgress [id=" + id + ", path=" + path + ", hash_rate=" + hash_rate + ", hash_eta=" + hash_eta + ", write_rate=" + write_rate + ", write_eta=" + write_eta + ", hash_progress="
-					+ hash_progress + ", write_progress=" + write_progress + "]";
+			return gson.toJson(this);
 		}
 	}
 

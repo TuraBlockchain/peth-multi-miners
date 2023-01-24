@@ -45,14 +45,15 @@ public class Util {
 		var mon = new MinerMonitor(proc);
 		return mon;
 	}
-	
-	public static final Future<Double> cpu_temp(){
+
+	public static final Future<Double> cpu_temp() {
 		return es.submit(new Callable<Double>() {
 
 			@Override
 			public Double call() throws Exception {
 				return JSensors.get.components().cpus.stream().findAny().get().sensors.temperatures.stream().findAny().get().value;
-			}});
+			}
+		});
 	}
 
 	public static final Map<String, Long> systemMemory() {
