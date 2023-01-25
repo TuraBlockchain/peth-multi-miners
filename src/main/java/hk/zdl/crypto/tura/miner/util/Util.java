@@ -14,12 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
@@ -141,14 +139,10 @@ public class Util {
 		}
 		l.addAll(Arrays.asList("--id", id.toString(), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
 		var proc = new ProcessBuilder(l).start();
-		try {
-			Thread.sleep(100);
-		} catch (Exception e) {
-		}
 		var reader = proc.inputReader(Charset.defaultCharset());
-		BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+		String line = null;
 		while (true) {
-			String line = reader.readLine();
+			line = reader.readLine();
 			if (line == null) {
 				break;
 			} else {
@@ -160,61 +154,34 @@ public class Util {
 				reader.close();
 				throw new IOException(line.substring("Error: ".length()));
 			} else if (line.equals("Starting plotting...")) {
-				es.submit(new Callable<Void>() {
-
-					@Override
-					public Void call() throws Exception {
-						String line = null;
-						while (true) {
-							line = reader.readLine();
-							if (line == null) {
-								queue.offer(null);
-								break;
-							} else if (line.isEmpty() || line.equals("[2A")) {
-								continue;
-							} else {
-								if (line.contains("鈹傗")) {
-									byte[] bArr = line.getBytes("GBK");
-									line = new String(bArr, "UTF-8");
-									line = line.replace("�?", "│");
-								}
-								queue.offer(line);
-							}
-						}
-						return null;
-					}
-				});
-				break;
-			}
-		}
-		es.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				String line = null;
-				while (true) {
-					line = queue.take();
-					if (line == null) {
-						break;
-					}
-					if (line.startsWith("Hashing:") || line.startsWith("Writing:")) {
-						PlotProgressListener.Type type = line.startsWith("H") ? PlotProgressListener.Type.HASH : PlotProgressListener.Type.WRIT;
-						line = line.substring(line.lastIndexOf('│') + 1);
-						float progress = Float.parseFloat(line.substring(0, line.indexOf('%')).trim());
-						line = line.substring(line.indexOf('%') + 1).trim();
-						String rate, eta = "";
-						if (line.endsWith("B/s")) {
-							rate = line;
-						} else {
-							rate = line.substring(0, line.lastIndexOf(" ")).trim().replace(" ", "");
-							eta = line.substring(line.lastIndexOf(" ")).trim();
-						}
-						listener.onProgress(type, progress, rate, eta);
+				continue;
+			} else {
+				if (line.isEmpty() || line.equals("[2A")) {
+					continue;
+				} else {
+					if (line.contains("鈹傗")) {
+						byte[] bArr = line.getBytes("GBK");
+						line = new String(bArr, "UTF-8");
+						line = line.replace("�?", "│");
 					}
 				}
-				return null;
+				if (line.startsWith("Hashing:") || line.startsWith("Writing:")) {
+					PlotProgressListener.Type type = line.startsWith("H") ? PlotProgressListener.Type.HASH : PlotProgressListener.Type.WRIT;
+					line = line.substring(line.lastIndexOf('│') + 1);
+					float progress = Float.parseFloat(line.substring(0, line.indexOf('%')).trim());
+					line = line.substring(line.indexOf('%') + 1).trim();
+					String rate, eta = "";
+					if (line.endsWith("B/s")) {
+						rate = line;
+					} else {
+						rate = line.substring(0, line.lastIndexOf(" ")).trim().replace(" ", "");
+						eta = line.substring(line.lastIndexOf(" ")).trim();
+					}
+					listener.onProgress(type, progress, rate, eta);
+				}
 			}
-		});
+
+		}
 		return proc;
 	}
 
