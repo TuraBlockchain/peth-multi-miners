@@ -5,8 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +29,7 @@ import hk.zdl.crypto.tura.miner.util.Util;
 public class PlotController extends Controller {
 
 	private static final ExecutorService es = Executors.newSingleThreadExecutor();
-	private static final List<PlotProgress> plot_progress = Collections.synchronizedList(new ArrayList<>());
+	private static final List<PlotProgress> plot_progress = Collections.synchronizedList(new LinkedList<>());
 	private static final Gson gson = new Gson();
 	private static File plotter_bin = null;
 
@@ -50,13 +50,27 @@ public class PlotController extends Controller {
 		}
 		var prog = new PlotProgress(id, path);
 		prog.restart = jobj.optBoolean("restart");
-		es.submit(() -> Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog).waitFor());
+		es.submit(() -> Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog));
 		plot_progress.add(prog);
 		renderText("plot queued!");
 	}
 
 	public void list() {
 		renderText(gson.toJson(plot_progress), "application/json");
+	}
+	
+	public void clear_done() {
+		if (!getRequest().getMethod().equals("POST")) {
+			renderError(405);
+		}
+		var itr = plot_progress.iterator();
+		while(itr.hasNext()) {
+			var x = itr.next();
+			if(x.isDone()) {
+				itr.remove();
+			}
+		}
+		renderText("ok");
 	}
 
 	protected static void restart_miner(BigInteger id) {
@@ -139,6 +153,10 @@ public class PlotController extends Controller {
 			if (restart && type == Type.WRIT && progress >= 100) {
 				restart_miner(id);
 			}
+		}
+
+		boolean isDone() {
+			return write_progress >= 100;
 		}
 
 		@Override

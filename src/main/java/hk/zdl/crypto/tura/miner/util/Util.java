@@ -47,13 +47,7 @@ public class Util {
 	}
 
 	public static final Future<Double> cpu_temp() {
-		return es.submit(new Callable<Double>() {
-
-			@Override
-			public Double call() throws Exception {
-				return JSensors.get.components().cpus.stream().findAny().get().sensors.temperatures.stream().findAny().get().value;
-			}
-		});
+		return es.submit(() -> JSensors.get.components().cpus.stream().findAny().get().sensors.temperatures.stream().findAny().get().value);
 	}
 
 	public static final Map<String, Long> systemMemory() {
