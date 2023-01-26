@@ -98,19 +98,15 @@ public class Util {
 	}
 
 	public static final Callable<String> pingServer(String url) {
-		return new Callable<String>() {
-
-			@Override
-			public String call() throws Exception {
-				var host = new URL(url).getHost();
-				var process = new ProcessBuilder("ping", "-c", "1", host).start();
-				var lines = IOUtils.readLines(process.getInputStream(), Charset.defaultCharset());
-				String str = lines.get(lines.size() - 1);
-				str = str.substring(str.indexOf("=") + 1);
-				str = str.substring(0, str.indexOf("/"));
-				str = str.trim();
-				return str;
-			}
+		return () -> {
+			var host = new URL(url).getHost();
+			var process = new ProcessBuilder("ping", "-c", "1", host).start();
+			var lines = IOUtils.readLines(process.getInputStream(), Charset.defaultCharset());
+			String str = lines.get(lines.size() - 1);
+			str = str.substring(str.indexOf("=") + 1);
+			str = str.substring(0, str.indexOf("/"));
+			str = str.trim();
+			return str;
 		};
 	}
 
@@ -166,7 +162,7 @@ public class Util {
 					}
 				}
 				if (line.startsWith("Hashing:") || line.startsWith("Writing:")) {
-					PlotProgressListener.Type type = line.startsWith("H") ? PlotProgressListener.Type.HASH : PlotProgressListener.Type.WRIT;
+					var type = line.startsWith("H") ? PlotProgressListener.Type.HASH : PlotProgressListener.Type.WRIT;
 					line = line.substring(line.lastIndexOf('│') + 1);
 					float progress = Float.parseFloat(line.substring(0, line.indexOf('%')).trim());
 					line = line.substring(line.indexOf('%') + 1).trim();
