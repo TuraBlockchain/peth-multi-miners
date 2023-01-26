@@ -1,6 +1,7 @@
 package hk.zdl.crypto.tura.miner;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,6 +16,7 @@ public class MinerMonitor extends Thread {
 	private final Process proc;
 	private final BufferedReader reader;
 	private final Map<String, Object> map = new TreeMap<>();
+	private File conf_file = null;
 	private int file_count = 0;
 	private double capacity = 0;
 
@@ -52,6 +54,10 @@ public class MinerMonitor extends Thread {
 		return capacity;
 	}
 
+	public void set_conf_file(File conf_file) {
+		this.conf_file = conf_file;
+	}
+
 	@Override
 	public void run() {
 		map.put("start time", System.currentTimeMillis());
@@ -66,12 +72,16 @@ public class MinerMonitor extends Thread {
 					continue;
 				}
 				map.put("last refresh", System.currentTimeMillis());
+				if (conf_file != null) {
+					conf_file.delete();
+					conf_file = null;
+				}
 				var level = "";
 				if (line.indexOf('[') > -1 && line.indexOf(']') > -1) {
 					level = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
 					line = line.substring(line.indexOf(']') + 1);
-				}else if(line.startsWith("message: {")) {
-					var jobj = new JSONObject(line.substring(line.indexOf('{'), line.lastIndexOf('}')+1));
+				} else if (line.startsWith("message: {")) {
+					var jobj = new JSONObject(line.substring(line.indexOf('{'), line.lastIndexOf('}') + 1));
 					level = "ERROR";
 					line = jobj.optString("result");
 				}
@@ -80,7 +90,7 @@ public class MinerMonitor extends Thread {
 					err.put("msg", line);
 					err.put("time", System.currentTimeMillis());
 					map.put("last error", err);
-					if(line.equals("No mining licence")){
+					if (line.equals("No mining licence")) {
 						proc.destroyForcibly();
 					}
 				} else if (line.startsWith("path=")) {
