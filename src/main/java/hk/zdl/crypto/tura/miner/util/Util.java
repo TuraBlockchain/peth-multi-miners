@@ -29,6 +29,7 @@ import hk.zdl.crypto.tura.miner.MinerMonitor;
 import hk.zdl.crypto.tura.miner.main.TuraConfig;
 
 public class Util {
+	private static File miner_bin = null;
 	private static final ExecutorService es = Executors.newCachedThreadPool(r -> {
 		Thread t = new Thread(r);
 		t.setDaemon(true);
@@ -36,9 +37,11 @@ public class Util {
 		return t;
 	});
 
-	public static MinerMonitor buildMinerProces(BigInteger id, String passphrase, List<Path> plot_dirs, URL server_url) throws Exception {
+	public static synchronized MinerMonitor buildMinerProces(BigInteger id, String passphrase, List<Path> plot_dirs, URL server_url) throws Exception {
 		var conf_file = LocalMiner.build_conf_file(id.toString(), passphrase, plot_dirs, server_url, null);
-		var miner_bin = LocalMiner.copy_miner();
+		if (miner_bin == null) {
+			miner_bin = LocalMiner.copy_miner();
+		}
 		var proc = LocalMiner.build_process(miner_bin, conf_file);
 		var mon = new MinerMonitor(proc);
 		return mon;

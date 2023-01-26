@@ -19,6 +19,15 @@ import com.formdev.flatlaf.util.SystemInfo;
 
 public class LocalMiner {
 
+	static {
+		try {
+			var path = Files.createTempDirectory(null);
+			tmp_dir = path.resolve("..").toFile();
+			Files.delete(path);
+		} catch (IOException e) {
+		}
+	}
+	private static File tmp_dir;
 	private static final String default_console_log_pattern = "[{l}]{m}{n}";
 
 	public static File build_conf_file(String id, String passphrase, Collection<Path> plot_dirs, URL server_url, String console_log_pattern) throws Exception {
@@ -33,6 +42,9 @@ public class LocalMiner {
 		m.put("url", server_url.toString());
 		m.put("cpu_worker_task_count", Runtime.getRuntime().availableProcessors());
 		m.put("console_log_pattern", console_log_pattern);
+		m.put("logfile_log_pattern", "");
+		m.put("logfile_max_count", 0);
+		m.put("logfile_max_size", 0);
 		m.put("show_progress", false);
 		File conf_file = File.createTempFile("config-", ".yaml");
 		conf_file.deleteOnExit();
@@ -41,7 +53,7 @@ public class LocalMiner {
 	}
 
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(Files.createTempDirectory(String.valueOf(System.currentTimeMillis())).toFile()).start();
+		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(tmp_dir).start();
 	}
 
 	public static File copy_miner() throws IOException {
