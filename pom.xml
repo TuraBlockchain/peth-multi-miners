@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>tura-miner</artifactId>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>tura-miner</name>
 	<description>tura miner
 	manager program for multi-id mining management
@@ -131,7 +131,7 @@
 									<type>link</type>
 									<symlink>true</symlink>
 									<linkName>/usr/share/${project.artifactId}/${project.artifactId}.jar</linkName>
-									<linkTarget>${project.build.directory}/${project.build.finalName}.jar</linkTarget>
+									<linkTarget>/usr/share/${project.artifactId}/${project.build.finalName}.jar</linkTarget>
 								</data>
 								<data>
 									<src>${project.build.directory}/lib</src>
