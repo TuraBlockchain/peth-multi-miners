@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import org.json.JSONObject;
+
 public class MinerMonitor extends Thread {
 
 	private final Process proc;
@@ -66,8 +68,12 @@ public class MinerMonitor extends Thread {
 				map.put("last refresh", System.currentTimeMillis());
 				var level = "";
 				if (line.indexOf('[') > -1 && line.indexOf(']') > -1) {
-					line.substring(line.indexOf('[') + 1, line.indexOf(']'));
+					level = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
 					line = line.substring(line.indexOf(']') + 1);
+				}else if(line.startsWith("message: {")) {
+					var jobj = new JSONObject(line.substring(line.indexOf('{'), line.lastIndexOf('}')+1));
+					level = "ERROR";
+					line = jobj.optString("result");
 				}
 				if (level.equals("ERROR")) {
 					var err = new TreeMap<>();
