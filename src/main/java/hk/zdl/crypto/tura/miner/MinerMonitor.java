@@ -80,6 +80,9 @@ public class MinerMonitor extends Thread {
 					err.put("msg", line);
 					err.put("time", System.currentTimeMillis());
 					map.put("last error", err);
+					if(line.equals("No mining licence")){
+						proc.destroyForcibly();
+					}
 				} else if (line.startsWith("path=")) {
 					line = line.split(", ")[1];
 					line = line.substring(line.indexOf('=') + 1);
