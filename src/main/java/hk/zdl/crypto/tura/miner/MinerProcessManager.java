@@ -23,6 +23,9 @@ public class MinerProcessManager {
 		}
 		var passphrase = MyDb.getAccount(id.toString()).get().getStr("PASSPHRASE");
 		var plot_dirs = MyDb.getMinerPaths(id.toString());
+		if(plot_dirs.isEmpty()) {
+			throw new IllegalStateException("No plot path for this wallet id.");
+		}
 		var server_url = new URL(MyDb.get_server_url().get());
 		var miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, server_url);
 		miner_mon.setProperty("id", id.toString());

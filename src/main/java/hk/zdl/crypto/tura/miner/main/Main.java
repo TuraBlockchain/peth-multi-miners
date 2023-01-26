@@ -32,7 +32,7 @@ public class Main {
 		server.start();
 		MyDb.create_missing_tables();
 
-		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).map(BigInteger::new).forEach(i -> {
+		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).filter(s -> MyDb.getMinerPaths(s).size() > 0).map(BigInteger::new).forEach(i -> {
 			try {
 				MinerProcessManager.me.start_miner(i);
 			} catch (Exception e) {
@@ -48,7 +48,7 @@ public class Main {
 					quit_menu_item.addActionListener((e) -> {
 						if (JOptionPane.showConfirmDialog(null, "Are you sure to quit tura miner?", "Quit", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
 							server.stop();
-							MinerProcessManager.me.list_miners().forEach(o->o.destroyForcibly());
+							MinerProcessManager.me.list_miners().forEach(o -> o.destroyForcibly());
 							System.exit(0);
 						}
 					});
@@ -57,7 +57,7 @@ public class Main {
 					var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
 					trayIcon.setImageAutoSize(true);
 					SystemTray.getSystemTray().add(trayIcon);
-					if(Taskbar.getTaskbar().isSupported(Taskbar.Feature.ICON_IMAGE)) {
+					if (Taskbar.getTaskbar().isSupported(Taskbar.Feature.ICON_IMAGE)) {
 						Taskbar.getTaskbar().setIconImage(app_icon);
 					}
 				} catch (Exception e) {
