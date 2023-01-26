@@ -86,6 +86,9 @@ public class MinerMonitor extends Thread {
 					line = jobj.optString("result");
 				}
 				if (level.equals("ERROR")) {
+					if (line.contains("=>")) {
+						line = line.substring(line.indexOf("=>") + 2).trim();
+					}
 					var err = new TreeMap<>();
 					err.put("msg", line);
 					err.put("time", System.currentTimeMillis());
