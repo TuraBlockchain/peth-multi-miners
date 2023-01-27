@@ -25,7 +25,7 @@ import hk.zdl.crypto.tura.miner.MinerProcessManager;
 public class Main {
 
 	public static void main(String[] args) throws Throwable {
-		System.setProperty("derby.system.home", Files.createTempDirectory(null).resolve("..").toFile().getAbsolutePath());
+		System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
 		var server = UndertowServer.create(TuraConfig.class);
 		server.setPort(Util.getProp().getInt("local_port"));
 		server.setResourcePath("src/main/webapp");

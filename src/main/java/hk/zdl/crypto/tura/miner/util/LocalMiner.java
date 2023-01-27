@@ -22,7 +22,7 @@ public class LocalMiner {
 	static {
 		try {
 			var path = Files.createTempDirectory(null);
-			tmp_dir = path.resolve("..").toFile();
+			tmp_dir = path.getParent().toFile();
 			Files.delete(path);
 		} catch (IOException e) {
 		}
