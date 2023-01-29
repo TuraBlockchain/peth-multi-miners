@@ -58,15 +58,15 @@ public class PlotController extends Controller {
 	public void list() {
 		renderText(gson.toJson(plot_progress), "application/json");
 	}
-	
+
 	public void clear_done() {
 		if (!getRequest().getMethod().equals("POST")) {
 			renderError(405);
 		}
 		var itr = plot_progress.iterator();
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			var x = itr.next();
-			if(x.isDone()) {
+			if (x.isDone()) {
 				itr.remove();
 			}
 		}
