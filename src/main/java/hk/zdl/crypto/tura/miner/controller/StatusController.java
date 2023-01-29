@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,9 +57,7 @@ public class StatusController extends Controller {
 				try {
 					var t = Util.cpu_temp().get(1, TimeUnit.SECONDS);
 					map.put("cpu", Collections.singletonMap("temp_cel", t));
-				} catch (TimeoutException x) {
 				} catch (Exception x) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 				}
 			}
 		}
