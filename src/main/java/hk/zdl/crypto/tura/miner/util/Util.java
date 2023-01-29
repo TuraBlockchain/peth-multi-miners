@@ -137,7 +137,7 @@ public class Util {
 		if (benchmark) {
 			l.add("-b");
 		}
-		l.addAll(Arrays.asList("--id", id.toString(), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-p", target.toAbsolutePath().toString()));
+		l.addAll(Arrays.asList("--id", id.toString(), "--sn", Long.toString(start_nonce), "--n", Long.toString(nonces), "-m", "1GiB", "-p", target.toAbsolutePath().toString()));
 		var proc = new ProcessBuilder(l).start();
 		var reader = proc.inputReader(Charset.defaultCharset());
 		String line = null;
