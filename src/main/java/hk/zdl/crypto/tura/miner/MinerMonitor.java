@@ -115,6 +115,11 @@ public class MinerMonitor extends Thread {
 						map.put(o[0].trim(), o[1].trim());
 					});
 				}
+				if (map.containsKey("file count")) {
+					if ((int) map.get("file count") == 0) {
+						proc.destroyForcibly();
+					}
+				}
 			}
 		} catch (IOException e) {
 		}
