@@ -1,6 +1,7 @@
 package hk.zdl.crypto.tura.miner.controller;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +27,7 @@ public class StatusController extends Controller {
 		var map = new TreeMap<>();
 		map.put("start time", start_time);
 		map.put("version", hk.zdl.crypto.pearlet.util.Util.getAppVersion());
+		map.put("build", hk.zdl.crypto.pearlet.util.Util.getTime(getClass()));
 		map.put("memory", Util.systemMemory());
 		var disk = new TreeMap<>();
 		disk.put("device", "default");
@@ -63,8 +65,9 @@ public class StatusController extends Controller {
 		}
 		var miner = new TreeMap<>();
 		miner.put("account count", MyDb.getAccountCount());
+		miner.put("active miners", MinerProcessManager.me.list_miners().size());
 		miner.put("plot file count", MinerProcessManager.me.list_miners().stream().mapToInt(o -> o.getFileCount()).sum());
-		miner.put("plot file size", MinerProcessManager.me.list_miners().stream().mapToDouble(o -> o.getCapacity()).sum());
+		miner.put("plot file size", MinerProcessManager.me.list_miners().stream().map(o->o.getCapacity()).reduce(BigDecimal::add).get());
 		map.put("miner", miner);
 		renderJson(map);
 

@@ -3,6 +3,7 @@ package hk.zdl.crypto.tura.miner;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -18,7 +19,7 @@ public class MinerMonitor extends Thread {
 	private final Map<String, Object> map = new TreeMap<>();
 	private File conf_file = null;
 	private int file_count = 0;
-	private double capacity = 0;
+	private BigDecimal capacity = new BigDecimal(0);
 
 	public MinerMonitor(Process proc) {
 		super(MinerMonitor.class.getSimpleName());
@@ -50,7 +51,7 @@ public class MinerMonitor extends Thread {
 		return file_count;
 	}
 
-	public double getCapacity() {
+	public BigDecimal getCapacity() {
 		return capacity;
 	}
 
@@ -103,7 +104,7 @@ public class MinerMonitor extends Thread {
 				} else if (line.startsWith("plot files loaded:")) {
 					String cap = line.substring(line.indexOf("total capacity=") + "total capacity=".length());
 					cap = cap.replace(" TiB", "");
-					capacity = Double.parseDouble(cap);
+					capacity = new BigDecimal(cap);
 					map.put("file count", file_count);
 					map.put("capacity", capacity);
 				} else if (line.startsWith("new block:")) {
