@@ -62,6 +62,7 @@ public class MinerMonitor extends Thread {
 	@Override
 	public void run() {
 		map.put("start time", System.currentTimeMillis());
+		var stop_by_this = false;
 		try {
 			while (true) {
 				var line = reader.readLine();
@@ -90,19 +91,25 @@ public class MinerMonitor extends Thread {
 					if (line.contains("=>")) {
 						line = line.substring(line.indexOf("=>") + 2).trim();
 					}
-					var err = new TreeMap<>();
-					err.put("msg", line);
-					err.put("time", System.currentTimeMillis());
-					map.put("last error", err);
+					map.put("last error", build_status_obj(line));
 					if (line.equals("No mining licence")) {
+						stop_by_this = true;
 						proc.destroyForcibly();
+						map.put("status", build_status_obj("No Mining Licence"));
+					} else if (line.equals("connection outage...")) {
+						map.put("status", build_status_obj("Network Error"));
+					} else if (line.equals("outage resolved.")) {
+						map.put("status", build_status_obj("Running"));
 					}
-				} else if (line.startsWith("path=")) {
+				} else {
+					map.put("status", build_status_obj("Running"));
+				}
+				if (line.startsWith("path=")) {
 					line = line.split(", ")[1];
 					line = line.substring(line.indexOf('=') + 1);
 					file_count += Integer.parseInt(line);
 				} else if (line.startsWith("plot files loaded:")) {
-					String cap = line.substring(line.indexOf("total capacity=") + "total capacity=".length());
+					var cap = line.substring(line.indexOf("total capacity=") + "total capacity=".length());
 					cap = cap.replace(" TiB", "");
 					capacity = new BigDecimal(cap);
 					map.put("file count", file_count);
@@ -118,11 +125,25 @@ public class MinerMonitor extends Thread {
 				}
 				if (map.containsKey("file count")) {
 					if ((int) map.get("file count") == 0) {
+						stop_by_this = true;
 						proc.destroyForcibly();
+						map.put("status", build_status_obj("No Plot Files"));
 					}
 				}
 			}
 		} catch (IOException e) {
+			map.put("status", build_status_obj(e.getMessage()));
+			return;
 		}
+		if(!stop_by_this) {
+			map.put("status", build_status_obj("Process Terminated"));
+		}
+	}
+
+	private static final Map<String, Object> build_status_obj(String msg) {
+		var o = new TreeMap<String, Object>();
+		o.put("msg", msg);
+		o.put("time", System.currentTimeMillis());
+		return o;
 	}
 }
