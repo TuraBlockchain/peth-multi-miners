@@ -67,7 +67,7 @@ public class StatusController extends Controller {
 		miner.put("account count", MyDb.getAccountCount());
 		miner.put("active miners", MinerProcessManager.me.list_miners().size());
 		miner.put("plot file count", MinerProcessManager.me.list_miners().stream().mapToInt(o -> o.getFileCount()).sum());
-		miner.put("plot file size", MinerProcessManager.me.list_miners().stream().map(o->o.getCapacity()).reduce(BigDecimal::add).get());
+		miner.put("plot file size", MinerProcessManager.me.list_miners().stream().map(o->o.getCapacity()).reduce(BigDecimal::add).orElseGet(()->BigDecimal.ZERO));
 		map.put("miner", miner);
 		renderJson(map);
 
