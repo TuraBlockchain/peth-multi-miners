@@ -9,8 +9,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
@@ -28,7 +29,26 @@ import hk.zdl.crypto.tura.miner.util.Util;
 @Path(value = "/api/v1/plot")
 public class PlotController extends Controller {
 
-	private static final ExecutorService es = Executors.newSingleThreadExecutor();
+	static {
+		new Thread(PlotController.class.getSimpleName()) {
+
+			@Override
+			public void run() {
+				while (true) {
+					Entry entry = null;
+					try {
+						entry = queue.take();
+						entry.call();
+					} catch (Exception e) {
+						if (entry != null) {
+							entry.prog.write_eta = e.getMessage();
+						}
+					}
+				}
+			}
+		}.start();
+	}
+	private static final BlockingQueue<Entry> queue = new LinkedBlockingQueue<>();
 	private static final List<PlotProgress> plot_progress = Collections.synchronizedList(new LinkedList<>());
 	private static final Gson gson = new Gson();
 	private static File plotter_bin = null;
@@ -50,9 +70,29 @@ public class PlotController extends Controller {
 		}
 		var prog = new PlotProgress(id, path);
 		prog.restart = jobj.optBoolean("restart");
-		es.submit(() -> Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog));
+		var entry = new Entry(() -> Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog), prog);
+		queue.offer(entry);
 		plot_progress.add(prog);
-		renderText("plot queued!");
+		renderText("plot plan added!");
+	}
+
+	public void del() throws Exception {
+		if (!getRequest().getMethod().equals("POST")) {
+			renderError(405);
+		}
+		var jobj = new JSONObject(getRawData());
+		var index = jobj.getInt("index");
+		var prog = plot_progress.get(index);
+		var itr = queue.iterator();
+		while (itr.hasNext()) {
+			var x = itr.next();
+			if (x.prog.equals(prog)) {
+				itr.remove();
+				break;
+			}
+		}
+		plot_progress.remove(index);
+		renderText("plot plan deleted!");
 	}
 
 	public void list() {
@@ -162,6 +202,22 @@ public class PlotController extends Controller {
 		@Override
 		public String toString() {
 			return gson.toJson(this);
+		}
+	}
+
+	private static final class Entry implements Callable<Process> {
+		final Callable<Process> call;
+		final PlotProgress prog;
+
+		Entry(Callable<Process> call, PlotProgress prog) {
+			super();
+			this.call = call;
+			this.prog = prog;
+		}
+
+		@Override
+		public Process call() throws Exception {
+			return call.call();
 		}
 	}
 
