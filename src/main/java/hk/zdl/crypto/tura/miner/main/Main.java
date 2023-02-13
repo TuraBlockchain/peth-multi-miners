@@ -28,7 +28,7 @@ public class Main {
 		System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
 		var server = UndertowServer.create(TuraConfig.class);
 		server.setPort(Util.getProp().getInt("local_port"));
-		server.setResourcePath("src/main/webapp");
+		server.setResourcePath("src/main/webapp,classpath");
 		server.start();
 		MyDb.create_missing_tables();
 
