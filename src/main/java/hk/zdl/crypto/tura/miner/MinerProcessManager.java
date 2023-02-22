@@ -49,7 +49,6 @@ public class MinerProcessManager {
 			if (id.toString().equals(m.getProperty("id"))) {
 				m.destroyForcibly();
 				itr.remove();
-				break;
 			}
 		}
 	}
@@ -62,6 +61,7 @@ public class MinerProcessManager {
 		var itr = miners.iterator();
 		while (itr.hasNext()) {
 			var m = itr.next();
+			m.set_auto_restart_process(false);
 			m.destroyForcibly();
 			itr.remove();
 		}

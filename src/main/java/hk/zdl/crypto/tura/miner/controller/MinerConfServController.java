@@ -44,7 +44,4 @@ public class MinerConfServController extends Controller {
 		}
 	}
 
-	public void insert() {
-
-	}
 }

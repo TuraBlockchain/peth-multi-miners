@@ -63,10 +63,11 @@ public class MinerController extends Controller {
 		renderText("ok");
 	}
 
-	public void restart_all() {
+	public synchronized void restart_all() {
 		if (getRequest().getMethod().equals("POST")) {
 			MinerProcessManager.me.stop_all();
 			MinerProcessManager.me.start_all();
+			renderText("ok");
 		} else {
 			renderError(405);
 		}
