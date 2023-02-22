@@ -38,7 +38,7 @@ public class MinerConfServController extends Controller {
 					var id_list = MinerProcessManager.me.list_miners().stream().map(x -> x.getProperty("id")).toList();
 					for (var x : id_list) {
 						try {
-							MinerProcessManager.me.start_miner(new BigInteger(x));
+							MinerProcessManager.me.start_miner(new BigInteger(x), true);
 						} catch (Exception e) {
 						}
 					}

@@ -37,7 +37,8 @@ public class MinerController extends Controller {
 		try {
 			var jobj = new JSONObject(getRawData());
 			var id = jobj.getBigInteger("id");
-			MinerProcessManager.me.start_miner(id);
+			var auto_restart = jobj.optBoolean("auto_restart", true);
+			MinerProcessManager.me.start_miner(id, auto_restart);
 		} catch (Exception e) {
 			renderError(400, new TextRender(e.getMessage()));
 			return;

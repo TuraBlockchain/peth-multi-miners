@@ -79,7 +79,7 @@ public class PlotController extends Controller {
 		} catch (Exception e) {
 		}
 		try {
-			MinerProcessManager.me.start_miner(id);
+			MinerProcessManager.me.start_miner(id, true);
 		} catch (Exception e) {
 		}
 	}

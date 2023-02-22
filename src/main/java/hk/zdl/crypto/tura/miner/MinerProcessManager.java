@@ -18,7 +18,7 @@ public class MinerProcessManager {
 	private MinerProcessManager() {
 	}
 
-	public synchronized final void start_miner(BigInteger id) throws Exception {
+	public synchronized final void start_miner(BigInteger id, boolean auto_restart) throws Exception {
 		for (var m : miners) {
 			if (m.getProperty("id").equals(id.toString())) {
 				throw new IllegalStateException("There's already a process for " + id);
@@ -34,14 +34,17 @@ public class MinerProcessManager {
 		miner_mon.setProperty("id", id.toString());
 		miner_mon.setProperty("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
 		miners.add(miner_mon);
+		miner_mon.set_auto_restart_process(auto_restart);
 		miner_mon.start();
+
+		Util.buildMinerProces(id, passphrase, plot_dirs, new URL("http://pp.peth.world:6876")).start();
 	}
 
 	public synchronized final void stop_miner(BigInteger id) throws Exception {
 		var itr = miners.iterator();
 		while (itr.hasNext()) {
 			var m = itr.next();
-			if (m.getProperty("id").equals(id.toString())) {
+			if (id.toString().equals(m.getProperty("id"))) {
 				m.destroyForcibly();
 				itr.remove();
 				break;

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -20,6 +21,7 @@ public class MinerMonitor extends Thread {
 	private File conf_file = null;
 	private int file_count = 0;
 	private BigDecimal capacity = new BigDecimal(0);
+	private boolean auto_restart_process = true;
 
 	public MinerMonitor(Process proc) {
 		super(MinerMonitor.class.getSimpleName());
@@ -57,6 +59,10 @@ public class MinerMonitor extends Thread {
 
 	public void set_conf_file(File conf_file) {
 		this.conf_file = conf_file;
+	}
+
+	public void set_auto_restart_process(boolean auto_restart_process) {
+		this.auto_restart_process = auto_restart_process;
 	}
 
 	@Override
@@ -135,8 +141,25 @@ public class MinerMonitor extends Thread {
 			map.put("status", build_status_obj(e.getMessage()));
 			return;
 		}
-		if(!stop_by_this) {
+		if (!stop_by_this) {
 			map.put("status", build_status_obj("Process Terminated"));
+			if (auto_restart_process) {
+				new Thread() {
+
+					@Override
+					public void run() {
+						var id = new BigInteger(getProperty("id"));
+						try {
+							MinerProcessManager.me.stop_miner(id);
+						} catch (Exception e) {
+						}
+						try {
+							MinerProcessManager.me.start_miner(id, true);
+						} catch (Exception e) {
+						}
+					}
+				}.start();
+			}
 		}
 	}
 
