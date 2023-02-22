@@ -32,13 +32,7 @@ public class Main {
 		server.start();
 		MyDb.create_missing_tables();
 
-		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).filter(s -> MyDb.getMinerPaths(s).size() > 0).map(BigInteger::new).forEach(i -> {
-			try {
-				MinerProcessManager.me.start_miner(i, true);
-			} catch (Exception e) {
-				Logger.getLogger("").log(Level.SEVERE, e.getMessage(), e);
-			}
-		});
+		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).filter(s -> MyDb.getMinerPaths(s).size() > 0).map(BigInteger::new).forEach(i -> MinerProcessManager.me.start_miner(i, true));
 		if (SystemInfo.isMacOS || SystemInfo.isWindows) {
 			if (!GraphicsEnvironment.isHeadless()) {
 				try {

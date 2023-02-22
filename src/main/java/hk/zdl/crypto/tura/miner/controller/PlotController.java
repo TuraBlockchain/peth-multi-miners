@@ -114,14 +114,8 @@ public class PlotController extends Controller {
 	}
 
 	protected static void restart_miner(BigInteger id) {
-		try {
-			MinerProcessManager.me.stop_miner(id);
-		} catch (Exception e) {
-		}
-		try {
-			MinerProcessManager.me.start_miner(id, true);
-		} catch (Exception e) {
-		}
+		MinerProcessManager.me.stop_miner(id);
+		MinerProcessManager.me.start_miner(id, true);
 	}
 
 	private static File copy_plotter() throws IOException {

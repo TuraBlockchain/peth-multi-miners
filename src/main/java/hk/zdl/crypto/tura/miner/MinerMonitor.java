@@ -149,14 +149,8 @@ public class MinerMonitor extends Thread {
 					@Override
 					public void run() {
 						var id = new BigInteger(getProperty("id"));
-						try {
-							MinerProcessManager.me.stop_miner(id);
-						} catch (Exception e) {
-						}
-						try {
-							MinerProcessManager.me.start_miner(id, true);
-						} catch (Exception e) {
-						}
+						MinerProcessManager.me.stop_miner(id);
+						MinerProcessManager.me.start_miner(id, true);
 					}
 				}.start();
 			}

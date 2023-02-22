@@ -18,7 +18,7 @@ public class MinerProcessManager {
 	private MinerProcessManager() {
 	}
 
-	public synchronized final void start_miner(BigInteger id, boolean auto_restart) throws Exception {
+	public synchronized final void start_miner(BigInteger id, boolean auto_restart) {
 		for (var m : miners) {
 			if (m.getProperty("id").equals(id.toString())) {
 				throw new IllegalStateException("There's already a process for " + id);
@@ -29,18 +29,20 @@ public class MinerProcessManager {
 		if (plot_dirs.isEmpty()) {
 			throw new IllegalStateException("No plot path for this wallet id.");
 		}
-		var server_url = new URL(MyDb.get_server_url().get());
-		var miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, server_url);
-		miner_mon.setProperty("id", id.toString());
-		miner_mon.setProperty("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
-		miners.add(miner_mon);
-		miner_mon.set_auto_restart_process(auto_restart);
-		miner_mon.start();
-
-		Util.buildMinerProces(id, passphrase, plot_dirs, new URL("http://pp.peth.world:6876")).start();
+		MyDb.list_server_url().stream().map(o -> o.getStr("URL")).forEach(server_url -> {
+			try {
+				var miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, new URL(server_url));
+				miner_mon.setProperty("id", id.toString());
+				miner_mon.setProperty("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
+				miners.add(miner_mon);
+				miner_mon.set_auto_restart_process(auto_restart);
+				miner_mon.start();
+			} catch (Exception e) {
+			}
+		});
 	}
 
-	public synchronized final void stop_miner(BigInteger id) throws Exception {
+	public synchronized final void stop_miner(BigInteger id){
 		var itr = miners.iterator();
 		while (itr.hasNext()) {
 			var m = itr.next();

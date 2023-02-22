@@ -1,5 +1,6 @@
 package hk.zdl.crypto.pearlet.persistence;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -40,27 +41,27 @@ public class MyDb {
 		prop.getProperties().keySet().stream().map(o -> o.toString().trim().toUpperCase()).filter(s -> !tables.contains(s)).map(s -> s.toLowerCase()).forEach(MyDb::create_table);
 	}
 
-	public static final Optional<String> get_server_url() {
-		List<Record> l = Db.find("select * from networks");
-		if (l.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(l.get(0).getStr("URL"));
-		}
+	public static final List<Record> list_server_url() {
+		return Db.find("select * from networks");
 	}
 
-	public static final synchronized boolean update_server_url(String url) {
-		var l = Db.find("select * from networks");
-		if (l.isEmpty()) {
-			var o = new Record().set("URL", url);
-			return Db.save("networks", o);
+	public static final boolean insert_server_url(String str) {
+		return Db.save("networks", new Record().set("URL", str));
+	}
+
+	public static final synchronized boolean update_server_url(int id, String url) {
+		var o = Db.findFirst("select * from networks where id = ?", id);
+		if (o == null) {
+			return false;
 		} else {
-			var o = l.get(0);
 			o.set("URL", url);
 			return Db.update("networks", "ID", o);
 		}
 	}
 
+	public static final boolean delete_server_url(int id) {
+		return Db.deleteById("networks", "id", id);
+	}
 
 	public static final Optional<Record> getAccount(String address) {
 		var r = Db.findFirst("select * from ACCOUNTS WHERE ADDRESS = ?", address);
