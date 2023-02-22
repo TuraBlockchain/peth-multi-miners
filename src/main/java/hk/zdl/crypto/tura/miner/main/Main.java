@@ -6,7 +6,6 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Taskbar;
 import java.awt.TrayIcon;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +31,7 @@ public class Main {
 		server.start();
 		MyDb.create_missing_tables();
 
-		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).filter(s -> MyDb.getMinerPaths(s).size() > 0).map(BigInteger::new).forEach(i -> MinerProcessManager.me.start_miner(i, true));
+		MinerProcessManager.me.start_all();
 		if (SystemInfo.isMacOS || SystemInfo.isWindows) {
 			if (!GraphicsEnvironment.isHeadless()) {
 				try {

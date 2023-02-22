@@ -1,6 +1,5 @@
 package hk.zdl.crypto.pearlet.persistence;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;

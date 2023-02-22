@@ -42,7 +42,7 @@ public class MinerProcessManager {
 		});
 	}
 
-	public synchronized final void stop_miner(BigInteger id){
+	public synchronized final void stop_miner(BigInteger id) {
 		var itr = miners.iterator();
 		while (itr.hasNext()) {
 			var m = itr.next();
@@ -56,5 +56,18 @@ public class MinerProcessManager {
 
 	public final List<MinerMonitor> list_miners() {
 		return Collections.unmodifiableList(miners);
+	}
+
+	public final void stop_all() {
+		var itr = miners.iterator();
+		while (itr.hasNext()) {
+			var m = itr.next();
+			m.destroyForcibly();
+			itr.remove();
+		}
+	}
+
+	public final void start_all() {
+		MyDb.getAccounts().stream().map(r -> r.getStr("ADDRESS")).filter(s -> MyDb.getMinerPaths(s).size() > 0).map(BigInteger::new).forEach(i -> MinerProcessManager.me.start_miner(i, true));
 	}
 }
