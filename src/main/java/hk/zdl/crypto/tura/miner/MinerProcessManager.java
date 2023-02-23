@@ -34,6 +34,7 @@ public class MinerProcessManager {
 				var miner_mon = Util.buildMinerProces(id, passphrase, plot_dirs, new URL(server_url));
 				miner_mon.setProperty("id", id.toString());
 				miner_mon.setProperty("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
+				miner_mon.setProperty("server url", server_url);
 				miners.add(miner_mon);
 				miner_mon.set_auto_restart_process(auto_restart);
 				miner_mon.start();
