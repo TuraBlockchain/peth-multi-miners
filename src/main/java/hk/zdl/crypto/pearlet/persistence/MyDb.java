@@ -40,6 +40,10 @@ public class MyDb {
 		prop.getProperties().keySet().stream().map(o -> o.toString().trim().toUpperCase()).filter(s -> !tables.contains(s)).map(s -> s.toLowerCase()).forEach(MyDb::create_table);
 	}
 
+	public static final int server_url_count() {
+		return Db.queryInt("select count(*) from networks");
+	}
+
 	public static final List<Record> list_server_url() {
 		return Db.find("select * from networks");
 	}

@@ -13,16 +13,17 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.formdev.flatlaf.util.SystemInfo;
 import com.profesorfalken.jsensors.JSensors;
 
 import hk.zdl.crypto.tura.miner.MinerMonitor;
@@ -36,6 +37,20 @@ public class Util {
 		t.setPriority(Thread.MIN_PRIORITY);
 		return t;
 	});
+	private static Optional<Double> cpu_temp = Optional.empty();
+	static {
+		es.submit(() -> {
+			if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
+				while (true) {
+					cpu_temp = JSensors.get.components().cpus.stream().findAny().get().sensors.temperatures.stream().findAny().map(o -> o.value);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+		});
+	}
 
 	public static synchronized MinerMonitor buildMinerProces(BigInteger id, String passphrase, List<Path> plot_dirs, URL server_url) throws Exception {
 		var conf_file = LocalMiner.build_conf_file(id.toString(), passphrase, plot_dirs, server_url, null);
@@ -48,8 +63,8 @@ public class Util {
 		return mon;
 	}
 
-	public static final Future<Double> cpu_temp() {
-		return es.submit(() -> JSensors.get.components().cpus.stream().findAny().get().sensors.temperatures.stream().findAny().get().value);
+	public static final Optional<Double> cpu_temp() {
+		return cpu_temp;
 	}
 
 	public static final Map<String, Long> systemMemory() {

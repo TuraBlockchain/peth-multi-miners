@@ -2,9 +2,9 @@ package hk.zdl.crypto.tura.miner.controller;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,22 +54,22 @@ public class StatusController extends Controller {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}
 		}
-		if (SystemInfo.isLinux || SystemInfo.isWindows_10_orLater) {
-			if (map.get("cpu") == null) {
-				try {
-					var t = Util.cpu_temp().get(1, TimeUnit.SECONDS);
-					map.put("cpu", Collections.singletonMap("temp_cel", t));
-				} catch (Exception x) {
-				}
+		if (map.get("cpu") == null) {
+			var t = Util.cpu_temp();
+			if (t.isPresent()) {
+				map.put("cpu", Collections.singletonMap("temp_cel", t.get()));
 			}
 		}
+		var s_u_count = MyDb.server_url_count();
 		var miner = new TreeMap<>();
 		miner.put("account count", MyDb.getAccountCount());
 		miner.put("active miners", MinerProcessManager.me.list_miners().size());
-		miner.put("plot file count", MinerProcessManager.me.list_miners().stream().mapToInt(o -> o.getFileCount()).sum());
-		miner.put("plot file size", MinerProcessManager.me.list_miners().stream().map(o->o.getCapacity()).reduce(BigDecimal::add).orElseGet(()->BigDecimal.ZERO));
+		miner.put("plot file count", s_u_count > 0 ? MinerProcessManager.me.list_miners().stream().mapToInt(o -> o.getFileCount()).sum() / s_u_count : 0);
+		miner.put("plot file size", s_u_count > 0 ? MinerProcessManager.me.list_miners().stream().map(o -> o.getCapacity()).reduce(BigDecimal::add).orElseGet(() -> BigDecimal.ZERO)
+				.divide(new BigDecimal(s_u_count), RoundingMode.HALF_DOWN) : 0);
 		map.put("miner", miner);
 		renderJson(map);
 
 	}
+
 }
