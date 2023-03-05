@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
@@ -40,12 +41,26 @@ public class LocalMiner {
 		}
 		m.put("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
 		m.put("url", server_url.toString());
-		m.put("cpu_worker_task_count", Runtime.getRuntime().availableProcessors());
+		m.put("cpu_worker_task_count", 1);
 		m.put("console_log_pattern", console_log_pattern);
 		m.put("logfile_log_pattern", "");
 		m.put("logfile_max_count", 0);
 		m.put("logfile_max_size", 0);
 		m.put("show_progress", false);
+		var fz = plot_dirs.parallelStream().flatMap(t -> {
+			try {
+				return Files.list(t);
+			} catch (IOException e) {
+				return Stream.empty();
+			}
+		}).filter(p->p.toFile().getName().startsWith(id+"_")&&Files.isRegularFile(p)).mapToLong(value -> {
+			try {
+				return Files.size(value);
+			} catch (IOException e) {
+			return 0;
+			}
+		}).sum();
+		m.put("additional_headers", Collections.singletonMap("X-Filesize", fz));
 		File conf_file = File.createTempFile("config-", ".yaml");
 		conf_file.deleteOnExit();
 		Files.writeString(conf_file.toPath(), new Yaml().dump(m));
