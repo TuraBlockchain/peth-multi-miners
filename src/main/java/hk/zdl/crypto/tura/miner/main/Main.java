@@ -6,6 +6,7 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Taskbar;
 import java.awt.TrayIcon;
+import java.awt.Taskbar.Feature;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,10 +77,12 @@ public class Main {
 			var menu = new PopupMenu();
 			menu.add(add_path_item);
 			menu.add(quit_menu_item);
-			var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
-			trayIcon.setImageAutoSize(true);
-			SystemTray.getSystemTray().add(trayIcon);
-			if (Taskbar.getTaskbar().isSupported(Taskbar.Feature.ICON_IMAGE)) {
+			if (SystemTray.isSupported()) {
+				var trayIcon = new TrayIcon(app_icon, "tura miner", menu);
+				trayIcon.setImageAutoSize(true);
+				SystemTray.getSystemTray().add(trayIcon);
+			}
+			if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
 				Taskbar.getTaskbar().setIconImage(app_icon);
 			}
 		} catch (Exception x) {
