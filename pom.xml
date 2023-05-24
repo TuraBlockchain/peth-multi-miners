@@ -221,7 +221,7 @@
 		<dependency>
 			<groupId>com.jfinal</groupId>
 			<artifactId>jfinal</artifactId>
-			<version>5.0.8</version>
+			<version>5.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
@@ -241,12 +241,12 @@
 		<dependency>
 			<groupId>com.jfinal</groupId>
 			<artifactId>jfinal-undertow</artifactId>
-			<version>3.4</version>
+			<version>3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
-			<version>8.0.32</version>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.signum-network</groupId>
@@ -286,7 +286,7 @@
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
-			<version>3.0</version>
+			<version>3.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.profesorfalken</groupId>
