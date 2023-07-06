@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>tura-miner</artifactId>
-	<version>0.5.0-SNAPSHOT</version>
+	<version>0.5.1-SNAPSHOT</version>
 	<name>tura-miner</name>
 	<description>tura miner
 	manager program for multi-id mining management
