@@ -39,6 +39,11 @@ public class StatusController extends Controller {
 		disk.put("ratio", (int) (ratio * 100) + "%");
 		map.put("disk", disk);
 		if (SystemInfo.isLinux) {
+			try {
+				disk.put("temp_cel", Util.nvme_temputure_cel());
+			} catch (Exception x) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+			}
 			if (TuraConfig.isRunningOnRoot()) {
 				try {
 					disk.put("temp_cel", Util.disk_temputure_cel(Util.diskUsage().get("/").get("device").toString().replaceAll("\\d", "")));

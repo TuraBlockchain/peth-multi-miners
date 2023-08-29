@@ -116,6 +116,15 @@ public class Util {
 				.intValue();
 	}
 
+	public static final int nvme_temputure_cel() throws Exception {
+		var jobj = new JSONObject(new JSONTokener(new ProcessBuilder("sensors", "-j").start().getInputStream()));
+		var opt = jobj.keySet().stream().filter(s -> s.startsWith("nvme-pci-")).findFirst();
+		if (opt.isPresent()) {
+			return jobj.getJSONObject(opt.get()).getJSONObject("Composite").getNumber("temp1_input").intValue();
+		} else
+			throw new FileNotFoundException();
+	}
+
 	public static final Callable<String> pingServer(String url) {
 		return () -> {
 			var host = new URL(url).getHost();
