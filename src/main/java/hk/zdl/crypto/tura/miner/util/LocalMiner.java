@@ -25,6 +25,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.formdev.flatlaf.util.SystemInfo;
 
+
 public class LocalMiner {
 
 	static {
@@ -77,7 +78,7 @@ public class LocalMiner {
 
 	@SuppressWarnings("unchecked")
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		if (SystemInfo.isAARCH64) {
+		if (SystemInfo.isAARCH64 && !SystemInfo.isMacOS) {
 			var proc = new ProcessBuilder("docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "linux/amd64").start();
 			var i = proc.waitFor();
 			if (i != 0) {
@@ -88,7 +89,7 @@ public class LocalMiner {
 				l.addAll(Arrays.asList("docker", "run", "--platform", "linux/amd64", "--mount", "type=bind,source=" + miner_bin.getAbsolutePath() + ",target=/app/signum-miner"));
 				var x = new TreeSet<String>();
 				x.add(conf_file.getAbsolutePath());
-				x.addAll((List<String>)new Yaml().loadAs(new FileInputStream(conf_file), Map.class).get("plot_dirs"));
+				x.addAll((List<String>) new Yaml().loadAs(new FileInputStream(conf_file), Map.class).get("plot_dirs"));
 				x.forEach(s -> {
 					l.addAll(Arrays.asList("--mount", "type=bind,source=" + s + ",target=" + s));
 				});
@@ -102,22 +103,25 @@ public class LocalMiner {
 
 	}
 
-
 	public static File copy_miner() throws IOException {
-		var suffix = "";
+		String suffix = "";
 		if (SystemInfo.isWindows) {
 			suffix = ".exe";
 		}
-		var tmp_file = File.createTempFile("peth-miner-", suffix);
+		var tmp_file = File.createTempFile("tura-miner-", suffix);
 		tmp_file.deleteOnExit();
 		var in_filename = "";
-		if (SystemInfo.isLinux) {
-			in_filename = "signum-miner";
-		} else if (SystemInfo.isWindows) {
+		if (SystemInfo.isWindows && SystemInfo.isX86_64) {
 			in_filename = "signum-miner.exe";
+		} else if (SystemInfo.isLinux) {
+			if (SystemInfo.isAARCH64) {
+				in_filename = "signum-miner-aarch64-linux";
+			} else if (SystemInfo.isX86_64) {
+				in_filename = "signum-miner-x86_64-linux";
+			}
 		} else if (SystemInfo.isMacOS) {
 			if (SystemInfo.isAARCH64) {
-				in_filename = "signum-miner-arm64.zip";
+				in_filename = "signum-miner-aarch64-apple-darwin.zip";
 			} else {
 				in_filename = "signum-miner-x86_64-apple-darwin.zip";
 			}
@@ -132,7 +136,7 @@ public class LocalMiner {
 			var zipfile = new ZipFile(tmp_file);
 			var entry = zipfile.stream().findAny().get();
 			in = zipfile.getInputStream(entry);
-			tmp_file = File.createTempFile("peth-miner-", ".app");
+			tmp_file = File.createTempFile("tura-miner-", SystemInfo.isAARCH64 ? "-app" : ".app");
 			tmp_file.deleteOnExit();
 			out = new FileOutputStream(tmp_file);
 			IOUtils.copy(in, out);
