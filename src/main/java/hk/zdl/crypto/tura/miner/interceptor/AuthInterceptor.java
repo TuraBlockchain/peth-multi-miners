@@ -9,15 +9,12 @@ import com.jfinal.aop.Invocation;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.tura.miner.controller.AccountController;
-import hk.zdl.crypto.tura.miner.controller.StatusController;
 
 public class AuthInterceptor implements Interceptor {
 
 	@Override
 	public void intercept(Invocation inv) {
-		if (inv.getController().getClass().equals(StatusController.class)) {
-			inv.invoke();
-		} else if (inv.getController().getClass().equals(AccountController.class) && MyDb.getAccountCount() == 0) {
+		if (inv.getController().getClass().equals(AccountController.class) && MyDb.getAccountCount() == 0) {
 			inv.invoke();
 		} else {
 			var header_auth = inv.getController().getRequest().getHeader("Authorization");
