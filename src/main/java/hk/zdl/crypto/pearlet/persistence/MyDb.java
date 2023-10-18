@@ -79,6 +79,10 @@ public class MyDb {
 		return Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS");
 	}
 
+	public static final boolean hasAccount(String passphrase) {
+		return Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE PASSPHRASE = ?", passphrase) > 0;
+	}
+
 	public static final boolean insertAccount(String address, String passphrase) {
 		int i = Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE ADDRESS = ?", address);
 		if (i > 0) {

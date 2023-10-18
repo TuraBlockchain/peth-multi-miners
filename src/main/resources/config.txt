@@ -4,6 +4,3 @@ appAuthor = zdl
 dbName = db
 
 local_port = 8080
-
-rotura-plotter-uri = rotura-plotter
-rotura-miner-uri   = rotura-miner

@@ -16,6 +16,7 @@ import com.jfinal.plugin.c3p0.C3p0Plugin;
 import com.jfinal.template.Engine;
 
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.tura.miner.interceptor.AuthInterceptor;
 
 public class TuraConfig extends JFinalConfig {
 
@@ -53,7 +54,7 @@ public class TuraConfig extends JFinalConfig {
 
 	@Override
 	public void configInterceptor(Interceptors me) {
-
+		me.add(new AuthInterceptor());
 	}
 
 	@Override
