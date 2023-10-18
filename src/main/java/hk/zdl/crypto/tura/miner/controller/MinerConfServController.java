@@ -2,6 +2,8 @@ package hk.zdl.crypto.tura.miner.controller;
 
 import java.net.URL;
 
+import org.json.JSONObject;
+
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 
@@ -18,7 +20,7 @@ public class MinerConfServController extends Controller {
 				renderJson(MyDb.list_server_url());
 				break;
 			case "POST":
-				String line = getRawData();
+				var line = getRawData();
 				try {
 					new URL(line);
 				} catch (Exception e) {
@@ -30,7 +32,8 @@ public class MinerConfServController extends Controller {
 				break;
 			case "PUT":
 				renderText("");
-				getResponse().setStatus(MyDb.update_server_url(getParaToInt("id"), getPara("url")) ? 201 : 400);
+				var jobj = new JSONObject(getRawData());
+				getResponse().setStatus(MyDb.update_server_url(jobj.getInt("id"), jobj.getString("url")) ? 201 : 400);
 				break;
 			case "DELETE":
 				renderText("");
