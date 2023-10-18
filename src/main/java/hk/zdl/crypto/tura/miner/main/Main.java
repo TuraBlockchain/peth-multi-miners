@@ -1,13 +1,15 @@
 package hk.zdl.crypto.tura.miner.main;
 
+import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Taskbar;
-import java.awt.TrayIcon;
 import java.awt.Taskbar.Feature;
+import java.awt.TrayIcon;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.TreeSet;
@@ -19,6 +21,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import com.formdev.flatlaf.extras.FlatDesktop;
 import com.jfinal.server.undertow.UndertowServer;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -38,6 +41,12 @@ public class Main {
 
 		MinerProcessManager.me.start_all();
 		add_tray_icon();
+		FlatDesktop.setAboutHandler(() -> {
+			try {
+				Desktop.getDesktop().browse(new URI("https://tura.world"));
+			} catch (Exception e) {
+			}
+		});
 	}
 
 	private static final void add_tray_icon() {
