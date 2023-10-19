@@ -27,7 +27,7 @@ public class AuthController extends Controller {
 			Util.store_new_pw(txt.toCharArray());
 			renderText("ok");
 			return;
-		}else {
+		} else {
 			renderError(405);
 			return;
 		}
