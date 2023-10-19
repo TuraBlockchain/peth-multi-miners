@@ -8,13 +8,14 @@ import com.jfinal.aop.Interceptor;
 import com.jfinal.aop.Invocation;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import hk.zdl.crypto.tura.miner.controller.AccountController;
+import hk.zdl.crypto.tura.miner.util.Util;
 
 public class AuthInterceptor implements Interceptor {
 
 	@Override
 	public void intercept(Invocation inv) {
-		if (inv.getController().getClass().equals(AccountController.class) && MyDb.getAccountCount() == 0) {
+		var auth_method = Util.getAuthMethod();
+		if (auth_method == Util.Auth.NONE || auth_method == Util.Auth.PASSWORD && !Util.hasPassword() || auth_method == Util.Auth.PASSPHRASE && MyDb.getAccountCount() == 0) {
 			inv.invoke();
 		} else {
 			var header_auth = inv.getController().getRequest().getHeader("Authorization");
@@ -22,9 +23,19 @@ public class AuthInterceptor implements Interceptor {
 				var txt = header_auth.substring(6);
 				txt = Charset.defaultCharset().decode(ByteBuffer.wrap(Base64.getDecoder().decode(txt))).toString();
 				var txt_arr = txt.split("[:]");
-				if (txt_arr.length > 1 && MyDb.hasAccount(txt_arr[1])) {
-					inv.invoke();
-					return;
+				if (txt_arr.length > 1) {
+					txt = txt_arr[1];
+					if (auth_method == Util.Auth.PASSPHRASE) {
+						if (MyDb.hasAccount(txt)) {
+							inv.invoke();
+							return;
+						}
+					} else if (auth_method == Util.Auth.PASSWORD) {
+						if (Util.validete_password(txt.toCharArray())) {
+							inv.invoke();
+							return;
+						}
+					}
 				}
 			}
 			inv.getController().getResponse().setHeader("WWW-Authenticate", "Basic");
