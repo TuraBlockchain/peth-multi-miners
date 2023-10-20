@@ -9,17 +9,14 @@
 	</description>
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
-
 	<scm>
 		<url>https://gitee.com/nybbs2003/tura-miner</url>
 		<connection>https://gitee.com/nybbs2003/tura-miner.git</connection>
 	</scm>
-
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>https://gitee.com/nybbs2003/tura-miner/issues</url>
 	</issueManagement>
-
 	<licenses>
 		<license>
 			<name>GNU General Public License v3.0</name>
@@ -27,8 +24,23 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/winrar.txt</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/winrar.txt</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -105,91 +117,146 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<artifactId>jdeb</artifactId>
-				<groupId>org.vafer</groupId>
-				<version>1.10</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jdeb</goal>
-						</goals>
-						<configuration>
-							<snapshotExpand>true</snapshotExpand>
-							<dataSet>
-								<data>
-									<src>${project.build.directory}/${project.build.finalName}.jar</src>
-									<type>file</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/${project.artifactId}</prefix>
-										<filemode>755</filemode>
-									</mapper>
-								</data>
-								<data>
-									<type>link</type>
-									<symlink>true</symlink>
-									<linkName>/usr/share/${project.artifactId}/${project.artifactId}.jar</linkName>
-									<linkTarget>/usr/share/${project.artifactId}/${project.build.finalName}.jar</linkTarget>
-								</data>
-								<data>
-									<src>${project.build.directory}/lib</src>
-									<type>directory</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/${project.artifactId}/lib</prefix>
-									</mapper>
-								</data>
-								<data>
-									<src>${basedir}/src/main/resources/app_icon.png</src>
-									<type>file</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/${project.artifactId}</prefix>
-									</mapper>
-								</data>
-								<data>
-									<src>${basedir}/src/deb/service</src>
-									<type>directory</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/lib/systemd/system</prefix>
-										<filemode>755</filemode>
-									</mapper>
-								</data>
-							</dataSet>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>de.perdian.maven.plugins</groupId>
-				<artifactId>macosappbundler-maven-plugin</artifactId>
-				<version>1.20.0</version>
-				<configuration>
-					<plist>
-						<CFBundleIconFile>src/main/resources/app_icon.icns</CFBundleIconFile>
-						<JVMMainClassName>hk.zdl.crypto.tura.miner.main.Main</JVMMainClassName>
-						<JVMVersion>17+</JVMVersion>
-						<NSHumanReadableCopyright>${project.licenses[0].name}</NSHumanReadableCopyright>
-					</plist>
-					<dmg>
-						<generate>true</generate>
-						<autoFallback>true</autoFallback>
-					</dmg>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>package-winrar</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>winrar</executable>
+									<workingDirectory>${project.build.directory}</workingDirectory>
+									<arguments>
+										<argument>a</argument>
+										<argument>-m5</argument>
+										<argument>-k</argument>
+										<argument>-y</argument>
+										<argument>-inul</argument>
+										<argument>-sfx</argument>
+										<argument>-iicon${basedir}/src/main/webapp/favicon.ico</argument>
+										<argument>-z${project.build.outputDirectory}/winrar.txt</argument>
+										<argument>${project.build.finalName}.exe</argument>
+										<argument>${project.build.finalName}.jar</argument>
+										<argument>./lib</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>package-deb</id>
+			<build>
+				<plugins>
+
+					<plugin>
+						<artifactId>jdeb</artifactId>
+						<groupId>org.vafer</groupId>
+						<version>1.10</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jdeb</goal>
+								</goals>
+								<configuration>
+									<snapshotExpand>true</snapshotExpand>
+									<dataSet>
+										<data>
+											<src>${project.build.directory}/${project.build.finalName}.jar</src>
+											<type>file</type>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/share/${project.artifactId}</prefix>
+												<filemode>755</filemode>
+											</mapper>
+										</data>
+										<data>
+											<type>link</type>
+											<symlink>true</symlink>
+											<linkName>/usr/share/${project.artifactId}/${project.artifactId}.jar</linkName>
+											<linkTarget>/usr/share/${project.artifactId}/${project.build.finalName}.jar</linkTarget>
+										</data>
+										<data>
+											<src>${project.build.directory}/lib</src>
+											<type>directory</type>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/share/${project.artifactId}/lib</prefix>
+											</mapper>
+										</data>
+										<data>
+											<src>${basedir}/src/main/resources/app_icon.png</src>
+											<type>file</type>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/share/${project.artifactId}</prefix>
+											</mapper>
+										</data>
+										<data>
+											<src>${basedir}/src/deb/service</src>
+											<type>directory</type>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/lib/systemd/system</prefix>
+												<filemode>755</filemode>
+											</mapper>
+										</data>
+									</dataSet>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>package-dmg</id>
+			<build>
+				<plugins>
+
+					<plugin>
+						<groupId>de.perdian.maven.plugins</groupId>
+						<artifactId>macosappbundler-maven-plugin</artifactId>
+						<version>1.20.0</version>
+						<configuration>
+							<plist>
+								<CFBundleIconFile>src/main/resources/app_icon.icns</CFBundleIconFile>
+								<JVMMainClassName>hk.zdl.crypto.tura.miner.main.Main</JVMMainClassName>
+								<JVMVersion>17+</JVMVersion>
+								<NSHumanReadableCopyright>${project.licenses[0].name}</NSHumanReadableCopyright>
+							</plist>
+							<dmg>
+								<generate>true</generate>
+								<autoFallback>true</autoFallback>
+							</dmg>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>bundle</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<repositories>
 		<repository>
 			<id>jitpack.io</id>
