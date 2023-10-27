@@ -22,9 +22,9 @@ import com.google.gson.Gson;
 import com.jfinal.core.Controller;
 import com.jfinal.core.Path;
 
+import hk.zdl.crypto.pearlet.plot.PlotProgressListener;
+import hk.zdl.crypto.pearlet.plot.PlotUtil;
 import hk.zdl.crypto.tura.miner.MinerProcessManager;
-import hk.zdl.crypto.tura.miner.util.PlotProgressListener;
-import hk.zdl.crypto.tura.miner.util.Util;
 
 @Path(value = "/api/v1/plot")
 public class PlotController extends Controller {
@@ -70,7 +70,7 @@ public class PlotController extends Controller {
 		}
 		var prog = new PlotProgress(id, path);
 		prog.restart = jobj.optBoolean("restart");
-		var entry = new Entry(() -> Util.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog), prog);
+		var entry = new Entry(() -> PlotUtil.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog), prog);
 		queue.offer(entry);
 		plot_progress.add(prog);
 		renderText("plot plan added!");

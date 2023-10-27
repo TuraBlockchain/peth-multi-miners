@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>hk.zdl.crpto</groupId>
+	<groupId>hk.zdl.crypto</groupId>
 	<artifactId>tura-miner</artifactId>
 	<version>1.1.0-SNAPSHOT</version>
 	<name>tura-miner</name>
@@ -10,12 +10,12 @@
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
 	<scm>
-		<url>https://gitee.com/nybbs2003/tura-miner</url>
-		<connection>https://gitee.com/nybbs2003/tura-miner.git</connection>
+		<url>https://github.com/TuraBlockchain/peth-multi-miners</url>
+		<connection>https://github.com/TuraBlockchain/peth-multi-miners.git</connection>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://gitee.com/nybbs2003/tura-miner/issues</url>
+		<url>https://github.com/TuraBlockchain/peth-multi-miners/issues</url>
 	</issueManagement>
 	<licenses>
 		<license>
@@ -364,9 +364,9 @@
 			<version>1.2.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.formdev</groupId>
-			<artifactId>flatlaf</artifactId>
-			<version>3.2.5</version>
+			<groupId>hk.zdl.crypto</groupId>
+			<artifactId>tura-binary</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.formdev</groupId>
