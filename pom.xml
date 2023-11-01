@@ -10,12 +10,12 @@
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
 	<scm>
-		<url>https://github.com/TuraBlockchain/peth-multi-miners</url>
-		<connection>https://github.com/TuraBlockchain/peth-multi-miners.git</connection>
+		<url>https://github.com/TuraBlockchain/tura-miner-daemon</url>
+		<connection>https://github.com/TuraBlockchain/tura-miner-daemon.git</connection>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/TuraBlockchain/peth-multi-miners/issues</url>
+		<url>https://github.com/TuraBlockchain/tura-miner-daemon/issues</url>
 	</issueManagement>
 	<licenses>
 		<license>
