@@ -283,8 +283,17 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>nybbs2003-tura</id>
+			<url>https://packagecloud.io/nybbs2003/tura/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.jfinal</groupId>
