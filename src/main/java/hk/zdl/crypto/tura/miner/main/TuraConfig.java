@@ -17,6 +17,7 @@ import com.jfinal.template.Engine;
 
 import hk.zdl.crypto.pearlet.util.Util;
 import hk.zdl.crypto.tura.miner.interceptor.AuthInterceptor;
+import hk.zdl.crypto.tura.miner.interceptor.CORS;
 
 public class TuraConfig extends JFinalConfig {
 
@@ -55,6 +56,7 @@ public class TuraConfig extends JFinalConfig {
 	@Override
 	public void configInterceptor(Interceptors me) {
 		me.add(new AuthInterceptor());
+		me.add(new CORS());
 	}
 
 	@Override
