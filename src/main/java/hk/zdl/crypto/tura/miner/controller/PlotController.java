@@ -70,7 +70,7 @@ public class PlotController extends Controller {
 		}
 		var prog = new PlotProgress(id, path);
 		prog.restart = jobj.optBoolean("restart");
-		var entry = new Entry(() -> PlotUtil.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog), prog);
+		var entry = new Entry(() -> PlotUtil.plot(plotter_bin.toPath(), Paths.get(path), false, id, sn, nounces, prog, new LinkedList<>()), prog);
 		queue.offer(entry);
 		plot_progress.add(prog);
 		renderText("plot plan added!");
